@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#f7cfe0">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>حِفظي</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=Amiri:wght@700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#fdf6fa; --card:#fff; --text:#5d4b68; --muted:#a393ad; --line:#f1e6ef;
+  --pink:#fbe0ec; --pink-d:#e897ba; --lav:#ece4fd; --lav-d:#a891dc;
+  --mint:#dcf4ea; --mint-d:#6fc09c; --peach:#ffe8da; --peach-d:#f0a57e;
+  --shadow:0 4px 18px rgba(214,160,196,.18);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:'Tajawal',system-ui,sans-serif;font-size:15px}
+body{padding-bottom:84px;min-height:100vh;
+  background:radial-gradient(circle at 90% -10%,#fde3ef 0,transparent 45%),radial-gradient(circle at -10% 30%,#efe7fd 0,transparent 40%),var(--bg)}
+button{font-family:inherit;cursor:pointer;border:0}
+input,select,textarea{font-family:inherit;font-size:15px;color:var(--text)}
+.wrap{max-width:640px;margin:0 auto;padding:16px 14px}
+header.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.brand{font-family:'Amiri',serif;font-size:30px;color:#c86f9a;line-height:1}
+.brand small{display:block;font-family:'Tajawal';font-size:12px;color:var(--muted);font-weight:500;margin-top:4px}
+.sync{font-size:11px;color:var(--muted);background:#fff;border-radius:20px;padding:5px 10px;box-shadow:var(--shadow)}
+.card{background:var(--card);border-radius:22px;padding:16px;box-shadow:var(--shadow);margin-bottom:14px}
+.weeknav{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.weeknav .rng{text-align:center;flex:1}
+.weeknav .rng b{display:block;font-size:16px}
+.weeknav .rng span{font-size:12px;color:var(--muted)}
+.circ{width:38px;height:38px;border-radius:50%;background:var(--lav);color:#7a63b8;font-size:18px;font-weight:700}
+.today-btn{font-size:12px;background:var(--peach);color:#b86a43;border-radius:14px;padding:4px 10px;margin-top:6px}
+.prog{height:10px;background:#f6eef4;border-radius:10px;overflow:hidden;margin-top:12px}
+.prog i{display:block;height:100%;background:linear-gradient(90deg,var(--lav-d),var(--pink-d));border-radius:10px;transition:width .4s}
+.prog-l{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-top:6px}
+.sess{background:linear-gradient(135deg,#fde6f0,#f1e9fe)}
+.sess h3{margin:0 0 4px;font-size:16px}
+.sess p{margin:0 0 10px;font-size:12px;color:var(--muted)}
+.chip{display:inline-flex;align-items:center;gap:6px;background:#fff;border-radius:14px;padding:6px 10px;margin:3px;font-size:13px;box-shadow:0 2px 6px rgba(200,150,190,.15)}
+.chip.sel{outline:2px solid var(--lav-d)}
+.btn{background:var(--pink-d);color:#fff;border-radius:16px;padding:10px 16px;font-weight:700;font-size:14px}
+.btn.lav{background:var(--lav-d)} .btn.mint{background:var(--mint-d)} .btn.ghost{background:#f6eef4;color:var(--text)}
+.btn.sm{padding:7px 12px;font-size:13px;border-radius:13px}
+.btn.full{width:100%}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.legend{display:grid;grid-template-columns:62px repeat(3,1fr);gap:6px;font-size:12px;font-weight:700;text-align:center;margin-bottom:6px}
+.legend div{padding:6px 2px;border-radius:12px}
+.L-n{background:var(--pink);color:#c0608c}.L-r{background:var(--lav);color:#7a63b8}.L-f{background:var(--mint);color:#3f9670}
+.day{display:grid;grid-template-columns:62px repeat(3,1fr);gap:6px;margin-bottom:6px}
+.dname{border-radius:14px;background:#faf3f8;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:13px;font-weight:700;padding:6px 2px;text-align:center}
+.dname span{font-size:11px;color:var(--muted);font-weight:500}
+.dname.today{background:var(--peach);color:#b86a43}
+.dname.ses{outline:2px dashed var(--pink-d)}
+.cell{position:relative;min-height:62px;border-radius:14px;padding:6px 6px 22px;font-size:12px;line-height:1.45;text-align:center;overflow:hidden}
+.cell.n{background:var(--pink)}.cell.r{background:var(--lav)}.cell.f{background:var(--mint)}
+.cell.empty{opacity:.55;display:flex;align-items:center;justify-content:center;padding:6px;font-size:20px;color:#fff}
+.cell.done{filter:saturate(.7)}
+.cell.done .txt{text-decoration:line-through;opacity:.6}
+.tick{position:absolute;bottom:4px;left:50%;transform:translateX(-50%);width:20px;height:20px;border-radius:50%;background:#fff;border:2px solid #e5d6e2;font-size:12px;line-height:16px;color:#fff;padding:0}
+.cell.done .tick{background:var(--mint-d);border-color:var(--mint-d)}
+.cell .note{display:block;color:var(--muted);font-size:11px}
+.actions{display:flex;gap:8px;margin-top:10px}
+.actions .btn{flex:1}
+nav.tabs{position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,.95);backdrop-filter:blur(8px);display:flex;justify-content:space-around;padding:8px 6px calc(8px + env(safe-area-inset-bottom));box-shadow:0 -4px 18px rgba(214,160,196,.18);z-index:5}
+nav.tabs button{background:none;color:var(--muted);font-size:12px;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 14px;border-radius:14px}
+nav.tabs button b{font-size:20px}
+nav.tabs button.on{background:var(--pink);color:#c0608c}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.stat{background:#fff;border-radius:18px;padding:12px 6px;text-align:center;box-shadow:var(--shadow)}
+.stat b{display:block;font-size:22px;color:#c86f9a}
+.stat span{font-size:11px;color:var(--muted)}
+.sec h3{margin:0 0 8px;font-size:15px;display:flex;align-items:center;gap:8px}
+.dot{width:12px;height:12px;border-radius:50%;display:inline-block}
+.item{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 0;border-bottom:1px solid var(--line)}
+.item:last-child{border-bottom:0}
+.item .t b{display:block;font-size:14px}
+.item .t span{font-size:12px;color:var(--muted)}
+.ico{background:#f6eef4;border-radius:10px;width:32px;height:32px;font-size:14px}
+.empty-msg{color:var(--muted);font-size:13px;text-align:center;padding:8px}
+label.f{display:block;font-size:13px;font-weight:700;margin:10px 0 4px}
+.inp{width:100%;border:2px solid var(--line);background:#fffafd;border-radius:14px;padding:10px 12px;outline:none}
+.inp:focus{border-color:var(--pink-d)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.hint{font-size:12px;color:var(--muted);margin-top:4px}
+.modal-bg{position:fixed;inset:0;background:rgba(93,75,104,.35);display:flex;align-items:flex-end;justify-content:center;z-index:20;animation:fade .2s}
+.modal{background:#fff;width:100%;max-width:560px;border-radius:26px 26px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom));max-height:88vh;overflow:auto;animation:up .25s}
+.modal h2{margin:0 0 6px;font-size:17px;color:#c86f9a}
+@keyframes up{from{transform:translateY(40px);opacity:0}}
+@keyframes fade{from{opacity:0}}
+.toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);background:#fff;padding:10px 18px;border-radius:18px;box-shadow:var(--shadow);font-size:13px;font-weight:700;z-index:30;color:#c86f9a}
+.hidden{display:none!important}
+.check{display:flex;align-items:center;gap:8px;margin-top:12px;font-weight:700}
+.check input{width:20px;height:20px;accent-color:var(--mint-d)}
+.picks{max-height:150px;overflow:auto;background:#fcf7fa;border-radius:14px;padding:6px}
+.ayah-deco{font-family:'Amiri',serif;color:#d9a3c0;font-size:13px;text-align:center;margin:4px 0 12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">حِفظي 🌸<small>متابعة الحفظ والمراجعة الأسبوعية</small></div>
+    <div class="sync" id="sync">📱 على الموبايل</div>
+  </header>
+  <div class="ayah-deco">﴿ وَلَقَدْ يَسَّرْنَا الْقُرْآنَ لِلذِّكْرِ فَهَلْ مِن مُّدَّكِرٍ ﴾</div>
+  <div id="nojs" class="card" style="background:#ffe8da;text-align:center;line-height:1.8">
+    ⚠️ <b>التطبيق مش شغّال هنا</b><br>الملف مفتوح في عارض بيعرض الشكل بس ومن غير أزرار.<br>
+    نزّلي الملف على الموبايل وافتحيه بـ <b>Google Chrome</b>.</div>
+  <div id="installBar" class="card hidden" style="background:linear-gradient(135deg,#fde6f0,#f1e9fe);display:flex;align-items:center;gap:10px">
+    <div style="flex:1;font-size:13px">📲 ثبّتي «حِفظي» على الشاشة الرئيسية زي أي تطبيق</div>
+    <button class="btn sm" id="installBtn">تثبيت</button></div>
+  <main id="view"></main>
+</div>
+<nav class="tabs">
+  <button data-tab="week" class="on"><b>🗓️</b>الأسبوع</button>
+  <button data-tab="record"><b>📖</b>سجل الحفظ</button>
+  <button data-tab="settings"><b>⚙️</b>الإعدادات</button>
+</nav>
+<div id="modalRoot"></div>
+<div class="toast hidden" id="toast"></div>
+
+<script>
+window.onerror=function(m){var t=document.getElementById("toast");if(t){t.textContent="خطأ: "+m;t.classList.remove("hidden")}};
+const SURAHS="الفاتحة,البقرة,آل عمران,النساء,المائدة,الأنعام,الأعراف,الأنفال,التوبة,يونس,هود,يوسف,الرعد,إبراهيم,الحجر,النحل,الإسراء,الكهف,مريم,طه,الأنبياء,الحج,المؤمنون,النور,الفرقان,الشعراء,النمل,القصص,العنكبوت,الروم,لقمان,السجدة,الأحزاب,سبأ,فاطر,يس,الصافات,ص,الزمر,غافر,فصلت,الشورى,الزخرف,الدخان,الجاثية,الأحقاف,محمد,الفتح,الحجرات,ق,الذاريات,الطور,النجم,القمر,الرحمن,الواقعة,الحديد,المجادلة,الحشر,الممتحنة,الصف,الجمعة,المنافقون,التغابن,الطلاق,التحريم,الملك,القلم,الحاقة,المعارج,نوح,الجن,المزمل,المدثر,القيامة,الإنسان,المرسلات,النبأ,النازعات,عبس,التكوير,الانفطار,المطففين,الانشقاق,البروج,الطارق,الأعلى,الغاشية,الفجر,البلد,الشمس,الليل,الضحى,الشرح,التين,العلق,القدر,البينة,الزلزلة,العاديات,القارعة,التكاثر,العصر,الهمزة,الفيل,قريش,الماعون,الكوثر,الكافرون,النصر,المسد,الإخلاص,الفلق,الناس".split(",");
+const AYAT=[7,286,200,176,120,165,206,75,129,109,123,111,43,52,99,128,111,110,98,135,112,78,118,64,77,227,93,88,69,60,34,30,73,54,45,83,182,88,75,85,54,53,89,59,37,35,38,29,18,45,60,49,62,55,78,96,29,22,24,13,14,11,11,18,12,12,30,52,52,44,28,28,20,56,40,31,50,40,46,42,29,19,36,25,22,17,19,26,30,20,15,21,11,8,8,19,5,8,8,11,11,8,3,9,5,4,7,3,6,3,5,4,5,6];
+const DAYS=["الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"];
+const ROWS={n:"تثبيت الجديد",r:"مراجعة قريبة",f:"مراجعة بعيدة"};
+const LS="hifzi_state_v1";
+
+let state={v:1,updatedAt:0,settings:{sessionDay:null,nearWeeks:4,farPerDay:1},portions:[],weeks:{}};
+let tab="week", weekKey=null;
+
+/* ---------- helpers ---------- */
+const $=s=>document.querySelector(s);
+const ar=n=>String(n).replace(/\d/g,d=>"٠١٢٣٤٥٦٧٨٩"[d]);
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pad=n=>String(n).padStart(2,"0");
+const fmt=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const parse=s=>{const [y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d)};
+const addDays=(s,n)=>{const d=parse(s);d.setDate(d.getDate()+n);return fmt(d)};
+const today=()=>fmt(new Date());
+const nice=s=>parse(s).toLocaleDateString("ar-EG",{day:"numeric",month:"long"});
+const uid=()=>Math.random().toString(36).slice(2,10)+Date.now().toString(36);
+function weekStartOf(s){const sd=(state.settings.sessionDay==null?4:state.settings.sessionDay);const d=parse(s);const diff=(d.getDay()-sd+7)%7;d.setDate(d.getDate()-diff);return fmt(d)}
+function label(it){const s=it.s,full=it.f===1&&it.t===AYAT[s-1];return `${SURAHS[s-1]} ${full?"(كاملة)":ar(it.f)+(it.t!==it.f?"–"+ar(it.t):"")}`}
+function sortP(a,b){return a.date<b.date?-1:a.date>b.date?1:(a.s-b.s)||(a.f-b.f)}
+function toast(m){const t=$("#toast");t.textContent=m;t.classList.remove("hidden");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.add("hidden"),1800)}
+
+/* ---------- storage: الموبايل + Google Drive ---------- */
+let lsOK=true, syncTimer=null, syncing=false, syncAgain=false;
+const SK="hifzi_sync_v1"; // إعدادات المزامنة منفصلة عشان متتمسحش مع الاسترجاع
+let sync={url:"",key:"",last:0};
+function loadLocal(){try{localStorage.setItem("__t","1");localStorage.removeItem("__t");const j=localStorage.getItem(LS);if(j){const s=JSON.parse(j);if(s&&s.v)state=s}
+  const k=localStorage.getItem(SK);if(k)sync=Object.assign(sync,JSON.parse(k))}catch(e){lsOK=false}}
+function saveSync(){try{localStorage.setItem(SK,JSON.stringify(sync))}catch(e){}}
+function save(){state.updatedAt=Date.now();try{localStorage.setItem(LS,JSON.stringify(state))}catch(e){lsOK=false}
+  if(sync.url){clearTimeout(syncTimer);syncTimer=setTimeout(pushDrive,1500);setSync("⏳ بيحفظ على Drive...")} else updSync()}
+function setSync(t){$("#sync").textContent=t}
+function updSync(){
+  if(!lsOK) return setSync("⚠️ مش بيحفظ – افتحيه من Chrome");
+  if(sync.url) return setSync(sync.last?"☁️ محفوظ على Drive":"☁️ Drive مستني أول حفظ");
+  setSync("📱 على الموبايل بس");
+}
+async function pushDrive(){
+  if(!sync.url)return; if(syncing){syncAgain=true;return}
+  syncing=true;
+  try{
+    const r=await fetch(sync.url,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({key:sync.key,data:state})});
+    const j=await r.json(); if(!j.ok) throw j.error||"err";
+    sync.last=Date.now();saveSync();setSync("☁️ محفوظ على Drive");
+  }catch(e){setSync("⚠️ Drive مش متاح – محفوظ على الموبايل")}
+  syncing=false; if(syncAgain){syncAgain=false;pushDrive()}
+}
+async function pullDrive(){
+  const r=await fetch(sync.url+(sync.url.includes("?")?"&":"?")+"key="+encodeURIComponent(sync.key));
+  const j=await r.json(); if(!j.ok) throw j.error||"err"; return j.data;
+}
+async function initDrive(){
+  if(!sync.url)return;
+  try{const cloud=await pullDrive();
+    if(cloudBetter(cloud)){state=cloud;try{localStorage.setItem(LS,JSON.stringify(state))}catch(e){};weekKey=null;render();toast("اتحمّلت آخر نسخة من Drive ☁️")}
+    else if((state.updatedAt||0)>((cloud&&cloud.updatedAt)||0)) pushDrive();
+    sync.last=sync.last||Date.now();saveSync();setSync("☁️ محفوظ على Drive");
+  }catch(e){setSync("⚠️ Drive مش متاح – محفوظ على الموبايل")}
+}
+function cloudBetter(c){return !!(c&&c.v&&c.portions&&c.portions.length&&((c.updatedAt||0)>(state.updatedAt||0)||state.portions.length<c.portions.length))}
+function downloadBackup(){
+  const blob=new Blob([JSON.stringify(state)],{type:"application/json"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="hifzi_backup_"+today()+".json";
+  document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+  state.settings.lastBackup=today();save();
+}
+
+/* ---------- classification ---------- */
+function classify(p,ref_){ // relative to week start ref_
+  const ws=weekStartOf(p.date);
+  if(ws===ref_) return "n";
+  if(p.date>ref_) return "future";
+  if(p.date>=addDays(ref_,-7*state.settings.nearWeeks)) return "r";
+  return "f";
+}
+function groups(ref_){const g={n:[],r:[],f:[]};state.portions.slice().sort(sortP).forEach(p=>{const c=classify(p,ref_);if(g[c])g[c].push(p)});return g}
+
+/* ---------- auto distribute ---------- */
+function distribute(){
+  const W=weekKey,g=groups(W),wk=state.weeks[W]||(state.weeks[W]={cells:{}});
+  const nearList=g.r, farList=g.f.slice().sort((a,b)=>(a.s-b.s)||(a.f-b.f));
+  const per=Math.max(1,state.settings.farPerDay|0);
+  const weekIdx=Math.round(parse(W).getTime()/(7*864e5));
+  const farStart=farList.length?((weekIdx*7*per)%farList.length):0;
+  for(let d=0;d<7;d++){
+    const set=(row,items)=>{const k=d+"_"+row,c=wk.cells[k];if(c&&c.done)return;
+      wk.cells[k]={items:items.map(p=>({s:p.s,f:p.f,t:p.t})),note:(c&&c.note)||"",done:false}};
+    if(d>0) set("n",g.n); // اليوم الأول = يوم الحصة نفسه
+    if(nearList.length){
+      if(nearList.length<=7) set("r",[nearList[d%nearList.length]]);
+      else{const sz=Math.ceil(nearList.length/7);set("r",nearList.slice(d*sz,d*sz+sz))}
+    }
+    if(farList.length){const arr=[];for(let i=0;i<per&&i<farList.length;i++)arr.push(farList[(farStart+d*per+i)%farList.length]);set("f",arr)}
+  }
+  save();render();toast("✨ اتوزعت المراجعة على الأسبوع");
+}
+
+/* ---------- views ---------- */
+function render(){
+  document.querySelectorAll("nav.tabs button").forEach(b=>b.classList.toggle("on",b.dataset.tab===tab));
+  if(state.settings.sessionDay==null&&tab==="week"){renderSetup();return}
+  if(!weekKey) weekKey=weekStartOf(today());
+  ({week:renderWeek,record:renderRecord,settings:renderSettings})[tab]();
+}
+
+function renderSetup(){
+  $("#view").innerHTML=`<div class="card sess"><h3>أهلاً بيك 🌷</h3><p>قبل ما نبدأ: الحصة بتاعتك مع المُدرِّسة يوم إيه في الأسبوع؟ الجدول الأسبوعي هيبدأ من يوم الحصة لحد الحصة اللي بعدها.</p>
+  <select class="inp" id="sd">${DAYS.map((d,i)=>`<option value="${i}" ${i===4?"selected":""}>${d}</option>`).join("")}</select>
+  <div style="margin-top:12px"><button class="btn full" id="go">يلا نبدأ</button></div></div>`;
+  $("#go").onclick=()=>{state.settings.sessionDay=+$("#sd").value;weekKey=null;save();render()};
+}
+
+function renderWeek(){
+  const W=weekKey, wk=state.weeks[W]||{cells:{}}, end=addDays(W,6), t=today();
+  const sess=state.portions.filter(p=>weekStartOf(p.date)===W).sort(sortP);
+  let filled=0,done=0;
+  Object.values(wk.cells).forEach(c=>{if((c.items&&c.items.length)||c.note){filled++;if(c.done)done++}});
+  const pct=filled?Math.round(done/filled*100):0;
+  let rows="";
+  for(let d=0;d<7;d++){
+    const ds=addDays(W,d), dow=parse(ds).getDay();
+    rows+=`<div class="day"><div class="dname ${ds===t?"today":""} ${d===0?"ses":""}">${DAYS[dow]}<span>${nice(ds)}</span>${d===0?'<span>📖 الحصة</span>':""}</div>`;
+    for(const r of ["n","r","f"]){
+      const c=wk.cells[d+"_"+r];
+      if(!c||(!(c.items&&c.items.length)&&!c.note)) rows+=`<div class="cell ${r} empty" data-c="${d}_${r}">+</div>`;
+      else rows+=`<div class="cell ${r} ${c.done?"done":""}" data-c="${d}_${r}"><div class="txt">${c.items.map(label).map(esc).join("<br>")}${c.note?`<span class="note">${esc(c.note)}</span>`:""}</div><button class="tick" data-t="${d}_${r}">✓</button></div>`;
+    }
+    rows+=`</div>`;
+  }
+  const lb=state.settings.lastBackup, needBk=!sync.url&&state.portions.length&&(!lb||lb<addDays(t,-7));
+  $("#view").innerHTML=`
+  ${needBk?'<div class="card" style="background:var(--peach);padding:12px 14px;font-size:13px">💾 بقالك أكتر من أسبوع من غير نسخة احتياطية. <button class="btn sm" id="goBk" style="margin-top:6px">اعملي نسخة دلوقتي</button></div>':""}
+  <div class="card">
+    <div class="weeknav"><button class="circ" id="prev">›</button>
+      <div class="rng"><b>أسبوع ${nice(W)}</b><span>من ${DAYS[parse(W).getDay()]} ${nice(W)} لـ ${DAYS[parse(end).getDay()]} ${nice(end)}</span>
+      ${W!==weekStartOf(t)?'<br><button class="today-btn" id="now">الأسبوع الحالي</button>':""}</div>
+      <button class="circ" id="next">‹</button></div>
+    <div class="prog"><i style="width:${pct}%"></i></div>
+    <div class="prog-l"><span>الإنجاز</span><span>${ar(done)} من ${ar(filled)} — ${ar(pct)}٪</span></div>
+  </div>
+  <div class="card sess">
+    <h3>📖 اللي اتحفظ في حصة الأسبوع ده</h3>
+    <p>بعد ما تخلصي الحصة سجّلي الآيات الجديدة هنا</p>
+    <div>${sess.length?sess.map(p=>`<span class="chip">${esc(label(p))}</span>`).join(""):'<div class="empty-msg">لسه مفيش حفظ متسجل للحصة دي</div>'}</div>
+    <div style="margin-top:10px"><button class="btn full" id="addSess">+ سجّلي حفظ الحصة</button></div>
+  </div>
+  <div class="card">
+    <div class="legend"><div></div><div class="L-n">${ROWS.n}</div><div class="L-r">${ROWS.r}</div><div class="L-f">${ROWS.f}</div></div>
+    ${rows}
+    <div class="actions"><button class="btn lav" id="auto">✨ توزيع المراجعة تلقائي</button></div>
+    <div class="hint">التوزيع التلقائي: الجديد بيتكرر كل يوم، المراجعة القريبة من آخر ${ar(state.settings.nearWeeks)} أسابيع، والبعيدة بتلف على كل القديم. الخانات اللي معلّم عليها ✓ مش بتتغير. ودوسي على أي خانة عشان تعدليها.</div>
+  </div>`;
+  $("#goBk")&&($("#goBk").onclick=()=>{tab="settings";render()});
+  $("#prev").onclick=()=>{weekKey=addDays(weekKey,-7);render()};
+  $("#next").onclick=()=>{weekKey=addDays(weekKey,7);render()};
+  $("#now")&&($("#now").onclick=()=>{weekKey=weekStartOf(t);render()});
+  $("#addSess").onclick=()=>portionModal(null,W);
+  $("#auto").onclick=()=>{
+    if(!state.portions.length){toast("سجّلي محفوظك الأول من «سجل الحفظ»");return}
+    distribute();
+  };
+  document.querySelectorAll(".tick").forEach(b=>b.onclick=e=>{e.stopPropagation();const wk2=state.weeks[W];const c=wk2.cells[b.dataset.t];c.done=!c.done;save();render();if(c.done)toast("ما شاء الله 🌸")});
+  document.querySelectorAll(".cell").forEach(c=>c.onclick=()=>cellModal(c.dataset.c));
+}
+
+function renderRecord(){
+  const ref_=weekStartOf(today()), g=groups(ref_);
+  const cover={};state.portions.forEach(p=>{const s=cover[p.s]||(cover[p.s]=new Set());for(let i=p.f;i<=p.t;i++)s.add(i)});
+  let tot=0,full=0;Object.entries(cover).forEach(([s,set])=>{tot+=set.size;if(set.size===AYAT[s-1])full++});
+  const sec=(k,title,color,list)=>`<div class="card sec"><h3><i class="dot" style="background:${color}"></i>${title} <span style="color:var(--muted);font-size:12px">(${ar(list.length)})</span></h3>
+    ${list.length?list.map(p=>`<div class="item"><div class="t"><b>${esc(label(p))}</b><span>${nice(p.date)}${p.note?" • "+esc(p.note):""}</span></div>
+    <div class="row"><button class="ico" data-e="${p.id}">✏️</button><button class="ico" data-d="${p.id}">🗑️</button></div></div>`).join(""):'<div class="empty-msg">مفيش حاجة هنا</div>'}</div>`;
+  $("#view").innerHTML=`
+  <div class="stats"><div class="stat"><b>${ar(tot)}</b><span>آية محفوظة</span></div>
+  <div class="stat"><b>${ar(full)}</b><span>سورة كاملة</span></div>
+  <div class="stat"><b>${ar((tot/6236*100).toFixed(1))}٪</b><span>من القرآن</span></div></div>
+  <div class="row" style="margin-bottom:14px"><button class="btn" style="flex:1" id="addNew">+ حفظ جديد</button><button class="btn mint" style="flex:1" id="addOld">+ محفوظ قديم</button></div>
+  ${sec("n","جديد (حصة الأسبوع ده)","var(--pink-d)",g.n)}
+  ${sec("r",`الماضي القريب (آخر ${ar(state.settings.nearWeeks)} أسابيع)`,"var(--lav-d)",g.r)}
+  ${sec("f","الماضي البعيد","var(--mint-d)",g.f)}`;
+  $("#addNew").onclick=()=>portionModal(null,weekStartOf(today()));
+  $("#addOld").onclick=()=>portionModal(null,addDays(today(),-7*(state.settings.nearWeeks+1)));
+  document.querySelectorAll("[data-e]").forEach(b=>b.onclick=()=>portionModal(state.portions.find(p=>p.id===b.dataset.e)));
+  document.querySelectorAll("[data-d]").forEach(b=>b.onclick=()=>{
+    const p=state.portions.find(x=>x.id===b.dataset.d);
+    confirmModal(`تمسحي «${label(p)}» من السجل؟`,()=>{state.portions=state.portions.filter(x=>x.id!==p.id);save();render();toast("اتمسح")});
+  });
+}
+
+function renderSettings(){
+  const s=state.settings;
+  $("#view").innerHTML=`
+  <div class="card"><h3 style="margin-top:0">⚙️ الإعدادات</h3>
+    <label class="f">يوم الحصة مع المدرسة</label>
+    <select class="inp" id="sd">${DAYS.map((d,i)=>`<option value="${i}" ${i===s.sessionDay?"selected":""}>${d}</option>`).join("")}</select>
+    <label class="f">الماضي القريب = آخر كام أسبوع؟</label>
+    <input class="inp" type="number" min="1" max="12" id="nw" value="${s.nearWeeks}">
+    <label class="f">عدد مقاطع المراجعة البعيدة في اليوم</label>
+    <input class="inp" type="number" min="1" max="5" id="fp" value="${s.farPerDay}">
+    <div style="margin-top:14px"><button class="btn full" id="sv">حفظ الإعدادات</button></div>
+  </div>
+  <div class="card"><h3 style="margin-top:0">☁️ الحفظ التلقائي على Google Drive</h3>
+    <div class="hint">${sync.url?("✅ متوصل"+(sync.last?" – آخر حفظ: "+new Date(sync.last).toLocaleString("ar-EG",{day:"numeric",month:"long",hour:"numeric",minute:"2-digit"}):"")):"مش متوصل لسه. بعد التوصيل كل تعديل بيتحفظ لوحده على Drive، ولو الموبايل اتمسح أو اتغير البيانات بترجع."}</div>
+    <label class="f">رابط المزامنة (Web app URL)</label>
+    <input class="inp" id="surl" dir="ltr" placeholder="https://script.google.com/macros/s/.../exec" value="${esc(sync.url)}">
+    <label class="f">كلمة السر</label>
+    <input class="inp" id="skey" dir="ltr" value="${esc(sync.key)}">
+    <div class="row" style="margin-top:10px">
+      <button class="btn mint sm" id="sconn">توصيل واختبار</button>
+      ${sync.url?'<button class="btn lav sm" id="spull">استرجاع من Drive</button><button class="btn ghost sm" id="soff">فصل</button>':""}
+    </div>
+  </div>
+  <div class="card"><h3 style="margin-top:0">💾 نسخة احتياطية</h3>
+    <div class="hint">البيانات محفوظة على الموبايل ده بس. اعملي نسخة احتياطية كل فترة (مثلاً كل أسبوع) وابعتيها لنفسك على واتساب.${s.lastBackup?" آخر نسخة: "+nice(s.lastBackup):""}</div>
+    <div class="row" style="margin-top:10px"><button class="btn lav" style="flex:1" id="dl">⬇️ تنزيل نسخة احتياطية</button></div>
+    <label class="f">استرجاع من ملف نسخة</label>
+    <input class="inp" type="file" id="fileIn" accept=".json,application/json">
+    <details style="margin-top:10px"><summary style="font-size:13px;font-weight:700;cursor:pointer">أو بالنسخ واللصق</summary>
+    <textarea class="inp" id="bk" rows="3" readonly style="margin-top:8px;font-size:11px" dir="ltr"></textarea>
+    <div class="row" style="margin-top:8px"><button class="btn lav sm" id="cp">نسخ</button></div>
+    <textarea class="inp" id="im" rows="3" placeholder="الصقي الكود هنا" dir="ltr" style="font-size:11px;margin-top:8px"></textarea>
+    <div class="row" style="margin-top:8px"><button class="btn ghost sm" id="imb">استرجاع</button></div></details>
+  </div>
+  <div class="card"><div class="hint">🌸 حِفظي v6 – بيشتغل من غير نت. الحفظ على Drive اختياري وبيبقى على حساب Google بتاعك أنتِ.</div></div>`;
+  $("#bk").value=JSON.stringify(state);
+  $("#sv").onclick=()=>{s.sessionDay=+$("#sd").value;s.nearWeeks=Math.min(12,Math.max(1,+$("#nw").value||4));s.farPerDay=Math.min(5,Math.max(1,+$("#fp").value||1));weekKey=null;save();toast("اتحفظت الإعدادات ✓");render()};
+  $("#cp").onclick=async()=>{try{await navigator.clipboard.writeText($("#bk").value);toast("اتنسخ ✓")}catch(e){$("#bk").select();toast("حدد النص وانسخه يدوي")}};
+  const restore=txt=>{try{const s2=JSON.parse(txt);if(!s2.portions||!s2.settings)throw 0;confirmModal("الاسترجاع هيستبدل كل البيانات الحالية. تكملي؟",()=>{state=s2;weekKey=null;save();render();toast("اترجعت البيانات ✓")})}catch(e){toast("الملف/الكود مش صحيح")}};
+  $("#imb").onclick=()=>restore($("#im").value);
+  $("#sconn").onclick=async()=>{const url=$("#surl").value.trim(),key=$("#skey").value.trim();
+    if(!/^https:\/\/script\.google\.com\/.+\/exec/.test(url)){toast("الرابط لازم يبدأ بـ script.google.com وينتهي بـ exec");return}
+    if(!key){toast("اكتبي كلمة السر");return}
+    const old={...sync};sync.url=url;sync.key=key;toast("⏳ بيجرّب...");
+    try{const cloud=await pullDrive();saveSync();
+      if(cloudBetter(cloud)){confirmModal("لقيت بياناتك على Drive. أحمّلها على الموبايل؟",()=>{state=cloud;try{localStorage.setItem(LS,JSON.stringify(state))}catch(e){};weekKey=null;updSync();render();toast("اتحمّلت ✓")})}
+      else{await pushDrive();toast("✅ اتوصل واتحفظ على Drive")}
+      sync.last=sync.last||Date.now();saveSync();updSync();render();
+    }catch(e){sync=old;toast("❌ مش قادر يوصل – راجعي الرابط وكلمة السر")}};
+  $("#spull")&&($("#spull").onclick=async()=>{try{const cloud=await pullDrive();if(!cloud||!cloud.v){toast("مفيش بيانات على Drive");return}
+    confirmModal("هيستبدل بيانات الموبايل بالنسخة اللي على Drive. تكملي؟",()=>{state=cloud;try{localStorage.setItem(LS,JSON.stringify(state))}catch(e){};weekKey=null;render();toast("اترجعت من Drive ✓")})}catch(e){toast("❌ Drive مش متاح")}});
+  $("#soff")&&($("#soff").onclick=()=>confirmModal("تفصلي الحفظ على Drive؟ (البيانات اللي هناك مش هتتمسح)",()=>{sync={url:"",key:"",last:0};saveSync();updSync();render()}));
+  $("#dl").onclick=()=>{try{downloadBackup();toast("اتنزلت النسخة ✓")}catch(e){toast("استخدمي النسخ واللصق")}};
+  $("#fileIn").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>restore(r.result);r.readAsText(f)};
+}
+
+/* ---------- modals ---------- */
+function openModal(html){$("#modalRoot").innerHTML=`<div class="modal-bg"><div class="modal">${html}</div></div>`;
+  $(".modal-bg").onclick=e=>{if(e.target.classList.contains("modal-bg"))closeModal()}}
+function closeModal(){$("#modalRoot").innerHTML=""}
+function confirmModal(msg,yes){openModal(`<h2>تأكيد</h2><p>${esc(msg)}</p><div class="actions"><button class="btn" id="y">أيوه</button><button class="btn ghost" id="n">لأ</button></div>`);
+  $("#y").onclick=()=>{closeModal();yes()};$("#n").onclick=closeModal}
+
+function surahPicker(prefix,s=1,f=1,t=null){
+  return `<label class="f">السورة</label><select class="inp" id="${prefix}s">${SURAHS.map((n,i)=>`<option value="${i+1}" ${i+1===s?"selected":""}>${ar(i+1)}. ${n} (${ar(AYAT[i])})</option>`).join("")}</select>
+  <div class="grid2"><div><label class="f">من آية</label><input class="inp" type="number" min="1" id="${prefix}f" value="${f}"></div>
+  <div><label class="f">لحد آية</label><input class="inp" type="number" min="1" id="${prefix}t" value="${t==null?f:t}"></div></div>
+  <div class="row" style="margin-top:8px"><button class="btn ghost sm" id="${prefix}all">السورة كاملة</button></div>`;
+}
+function bindPicker(prefix){$("#"+prefix+"all").onclick=()=>{$("#"+prefix+"f").value=1;$("#"+prefix+"t").value=AYAT[$("#"+prefix+"s").value-1]};
+  $("#"+prefix+"s").onchange=()=>{$("#"+prefix+"f").value=1;$("#"+prefix+"t").value=1}}
+function readPicker(prefix){const s=+$("#"+prefix+"s").value,f=+$("#"+prefix+"f").value,t=+$("#"+prefix+"t").value,max=AYAT[s-1];
+  if(!f||!t||f<1||t<f||t>max){toast(`الآيات لازم تبقى بين ١ و ${ar(max)} و«من» أصغر من «لحد»`);return null}return{s,f,t}}
+
+function portionModal(p,defDate){
+  const isNew=!p; p=p||{s:1,f:1,t:1,date:defDate||today(),note:""};
+  openModal(`<h2>${isNew?"تسجيل حفظ":"تعديل الحفظ"}</h2>${surahPicker("p",p.s,p.f,p.t)}
+  <label class="f">تاريخ الحفظ</label><input class="inp" type="date" id="pd" value="${p.date}">
+  <div class="hint">التاريخ هو اللي بيحدد هو جديد ولا ماضي قريب ولا بعيد.</div>
+  <label class="f">ملاحظة (اختياري)</label><input class="inp" id="pn" value="${esc(p.note||"")}" placeholder="مثلاً: محتاجة تركيز في آية ٥">
+  <div class="actions"><button class="btn" id="ok">حفظ</button><button class="btn ghost" id="cn">إلغاء</button></div>`);
+  bindPicker("p");
+  $("#cn").onclick=closeModal;
+  $("#ok").onclick=()=>{const r=readPicker("p");if(!r)return;const date=$("#pd").value||today();
+    if(isNew)state.portions.push({id:uid(),...r,date,note:$("#pn").value.trim()});
+    else Object.assign(p,r,{date,note:$("#pn").value.trim()});
+    save();closeModal();render();toast("اتسجل ✓")};
+}
+
+function cellModal(key){
+  const W=weekKey,[d,r]=key.split("_"),ds=addDays(W,+d);
+  const wk=state.weeks[W]||{cells:{}};
+  const c=JSON.parse(JSON.stringify(wk.cells[key]||{items:[],note:"",done:false}));
+  const g=groups(W), sugg=(g[r]||[]);
+  const draw=()=>{
+    $("#ci").innerHTML=c.items.length?c.items.map((it,i)=>`<span class="chip">${esc(label(it))} <button class="ico" style="width:22px;height:22px;font-size:11px" data-x="${i}">✕</button></span>`).join(""):'<div class="empty-msg">لسه مفيش مقاطع</div>';
+    document.querySelectorAll("[data-x]").forEach(b=>b.onclick=()=>{c.items.splice(+b.dataset.x,1);draw()});
+  };
+  openModal(`<h2>${DAYS[parse(ds).getDay()]} ${nice(ds)} — ${ROWS[r]}</h2>
+    <div id="ci" style="margin:8px 0"></div>
+    ${sugg.length?`<label class="f">اختار من محفوظك (${ROWS[r]})</label><div class="picks">${sugg.map((p,i)=>`<span class="chip" data-p="${i}" style="cursor:pointer">+ ${esc(label(p))}</span>`).join("")}</div>`:""}
+    <details style="margin-top:8px"><summary style="font-weight:700;font-size:13px;cursor:pointer">إضافة مقطع يدوي</summary>${surahPicker("c")}
+    <div class="row" style="margin-top:8px"><button class="btn lav sm" id="cadd">إضافة المقطع</button></div></details>
+    <label class="f">ملاحظة</label><input class="inp" id="cnote" value="${esc(c.note||"")}" placeholder="مثلاً: سمّعت لنفسي مرتين">
+    <label class="check"><input type="checkbox" id="cdone" ${c.done?"checked":""}> خلصت المراجعة دي ✓</label>
+    <div class="actions"><button class="btn" id="ok">حفظ</button><button class="btn ghost" id="clr">مسح الخانة</button><button class="btn ghost" id="cn">إلغاء</button></div>`);
+  draw(); bindPicker("c");
+  document.querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>{const p=sugg[+b.dataset.p];c.items.push({s:p.s,f:p.f,t:p.t});draw()});
+  $("#cadd").onclick=()=>{const it=readPicker("c");if(it){c.items.push(it);draw()}};
+  $("#cn").onclick=closeModal;
+  $("#clr").onclick=()=>{if(state.weeks[W])delete state.weeks[W].cells[key];save();closeModal();render()};
+  $("#ok").onclick=()=>{c.note=$("#cnote").value.trim();c.done=$("#cdone").checked;
+    const w=state.weeks[W]||(state.weeks[W]={cells:{}});w.cells[key]=c;save();closeModal();render();if(c.done)toast("ما شاء الله 🌸")};
+}
+
+/* ---------- boot ---------- */
+document.querySelectorAll("nav.tabs button").forEach(b=>b.onclick=()=>{tab=b.dataset.tab;render();scrollTo(0,0)});
+document.getElementById("nojs").remove();
+let deferredInstall=null;
+window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredInstall=e;$("#installBar").classList.remove("hidden")});
+window.addEventListener("appinstalled",()=>{$("#installBar").classList.add("hidden");toast("اتثبت التطبيق 🌸")});
+$("#installBtn").onclick=async()=>{if(!deferredInstall)return;deferredInstall.prompt();await deferredInstall.userChoice;deferredInstall=null;$("#installBar").classList.add("hidden")};
+if("serviceWorker" in navigator&&(location.protocol==="https:"||location.hostname==="localhost")){navigator.serviceWorker.register("sw.js").catch(()=>{})}
+ loadLocal(); updSync(); render(); initDrive();
+</script>
+</body>
+</html>
