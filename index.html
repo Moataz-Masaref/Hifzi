@@ -203,7 +203,7 @@ body.noanim #floaters{display:none}
 <div id="floaters"></div>
 <div class="wrap">
   <header class="top">
-    <div class="brand">حِفظي <span class="fl" id="brandEm">🌸</span><span class="ver" id="verTag">v10</span><small>متابعة الحفظ والمراجعة الأسبوعية</small></div>
+    <div class="brand">حِفظي <span class="fl" id="brandEm">🌸</span><span class="ver" id="verTag">v11</span><small>متابعة الحفظ والمراجعة الأسبوعية</small></div>
     <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end"><button class="sync prof" id="profBtn">🌸</button><div class="sync" id="sync">📱 على الموبايل</div></div>
   </header>
   <div class="ayah-deco">﴿ وَلَقَدْ يَسَّرْنَا الْقُرْآنَ لِلذِّكْرِ فَهَلْ مِن مُّدَّكِرٍ ﴾</div>
@@ -232,7 +232,7 @@ const AYAT=[7,286,200,176,120,165,206,75,129,109,123,111,43,52,99,128,111,110,98
 const DAYS=["الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"];
 const ROWS={n:"تثبيت الجديد",r:"مراجعة قريبة",f:"مراجعة بعيدة"};
 const LS="hifzi_state_v1";
-const APP_VERSION="10";
+const APP_VERSION="11";
 
 let state={v:1,updatedAt:0,settings:{sessionDay:null,nearWeeks:4,farPerDay:1},portions:[],weeks:{}};
 let tab="week", weekKey=null;
@@ -450,7 +450,7 @@ function classify(p,ref_){ // relative to week start ref_
 function groups(ref_){const g={n:[],r:[],f:[]};state.portions.slice().sort(sortP).forEach(p=>{const c=classify(p,ref_);if(g[c])g[c].push(p)});return g}
 
 /* ---------- auto distribute ---------- */
-function distribute(){
+function distribute(silent){
   const W=weekKey,g=groups(W),wk=state.weeks[W]||(state.weeks[W]={cells:{}});
   const nearList=weighted(g.r), farList=weighted(g.f.slice().sort((a,b)=>(a.s-b.s)||(a.f-b.f)));
   const per=Math.max(1,state.settings.farPerDay|0);
@@ -467,8 +467,19 @@ function distribute(){
     }
     if(farList.length){const arr=[];for(let i=0;i<per&&i<farList.length;i++)arr.push(farList[(farStart+d*per+i)%farList.length]);set("f",arr)}
   }
-  save();render();toast("✨ اتوزعت المراجعة على الأسبوع");
+  if(!silent){save();render();toast("✨ اتوزعت المراجعة على الأسبوع")}
 }
+// لما يتسجل حفظ جديد يظهر على طول في جدول الأسبوع الحالي
+function placeInWeek(p){
+  const W=weekStartOf(today()),t=today(),wk=state.weeks[W]||(state.weeks[W]={cells:{}});
+  const filled=Object.values(wk.cells).some(c=>(c.items&&c.items.length)||c.note);
+  const cls=classify(p,W);
+  if(cls==="future")return false;
+  if(cls==="n"&&filled){let n=0;
+    for(let d=1;d<7;d++){const ds=addDays(W,d);if(ds<t)continue;const k=d+"_n",c=wk.cells[k];if(c&&c.done)continue;
+      const items=(c&&c.items)||[];if(!items.some(it=>it.s===p.s&&it.f===p.f&&it.t===p.t)){wk.cells[k]={items:items.concat([{s:p.s,f:p.f,t:p.t}]),note:(c&&c.note)||"",done:false};n++}}
+    return n>0}
+  const old=weekKey;weekKey=W;distribute(true);weekKey=old;return true}
 
 /* ---------- views ---------- */
 function render(){
@@ -669,9 +680,10 @@ function portionModal(p,defDate){
   bindPicker("p");
   $("#cn").onclick=closeModal;
   $("#ok").onclick=()=>{const r=readPicker("p");if(!r)return;const date=$("#pd").value||today();
-    if(isNew)state.portions.push({id:uid(),...r,date,note:$("#pn").value.trim()});
-    else Object.assign(p,r,{date,note:$("#pn").value.trim()});
-    save();closeModal();render();if(isNew)confetti(innerWidth/2,innerHeight*0.4,18);toast("اتسجل ✓")};
+    let placed=false;
+    if(isNew){const np={id:uid(),...r,date,note:$("#pn").value.trim()};state.portions.push(np);placed=placeInWeek(np)}
+    else{Object.assign(p,r,{date,note:$("#pn").value.trim()});placed=placeInWeek(p)}
+    save();closeModal();render();if(isNew)confetti(innerWidth/2,innerHeight*0.4,18);toast(placed?"اتسجل ✓ وظهر في جدول الأسبوع":"اتسجل ✓")};
 }
 
 function cellModal(key){
@@ -750,7 +762,7 @@ function renderStats(){
   for(let s_=1;s_<=114;s_++){const o=info[s_];if(mapOnlyMem&&!o)continue;
     const n=o?o.set.size:0,pc=Math.round(n/AYAT[s_-1]*100),col=o?MCOL[o.cls]:"var(--soft)";
     const bg=!o?"var(--soft)":pc>=100?col:`linear-gradient(to left, ${col} ${pc}%, var(--soft) ${pc}%)`;
-    tiles+=`<div style="--i:${s_}" class="tile ${o&&o.weak?"weak":""}" data-s="${s_}" style="background:${bg}"><b>${ar(s_)}</b>${SURAHS[s_-1]}</div>`}
+    tiles+=`<div style="--i:${s_};background:${bg}" class="tile ${o&&o.weak?"weak":""}" data-s="${s_}"><b>${ar(s_)}</b>${SURAHS[s_-1]}</div>`}
   $("#view").innerHTML=`
   <div class="card"><h3 style="margin:0 0 4px">🗺️ خريطة الحفظ</h3>
     <div class="legend2"><span><i style="background:var(--pink-d)"></i>جديد</span><span><i style="background:var(--lav-d)"></i>قريب</span><span><i style="background:var(--mint-d)"></i>بعيد</span><span><i style="background:var(--card);border:2px solid #e57f8f"></i>محتاجة إعادة</span><span>اللون الجزئي = جزء من السورة</span></div>
