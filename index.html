@@ -142,8 +142,8 @@ label.f{display:block;font-size:13px;font-weight:700;margin:10px 0 4px}
 .seg button.on.x{background:var(--soft);outline-color:var(--line2)}
 .rate3{display:grid;gap:8px;margin-top:10px}
 .rate3 button{border-radius:16px;padding:14px;font-size:15px;font-weight:700;color:var(--text)}
-.map{display:grid;grid-template-columns:repeat(6,1fr);gap:5px}
-.tile{border-radius:10px;padding:5px 2px;text-align:center;font-size:10px;line-height:1.25;min-height:46px;display:flex;flex-direction:column;justify-content:center;cursor:pointer;color:var(--text);border:2px solid transparent}
+.map{display:grid;grid-template-columns:repeat(auto-fill,minmax(54px,1fr));gap:5px;width:100%}
+.tile{min-width:0;overflow:hidden;overflow-wrap:anywhere;box-sizing:border-box;border-radius:10px;padding:5px 2px;text-align:center;font-size:10px;line-height:1.25;min-height:46px;display:flex;flex-direction:column;justify-content:center;cursor:pointer;color:var(--text);border:2px solid transparent}
 .tile b{font-size:11px;opacity:.6}
 .tile.weak{border-color:#e57f8f}
 .legend2{display:flex;flex-wrap:wrap;gap:10px;font-size:11px;color:var(--muted);margin:8px 0}
@@ -208,7 +208,7 @@ body.noanim #floaters{display:none}
 <div id="floaters"></div>
 <div class="wrap">
   <header class="top">
-    <div class="brand">حِفظي <span class="fl" id="brandEm">🌸</span><span class="ver" id="verTag">v13</span><small>متابعة الحفظ والمراجعة الأسبوعية</small></div>
+    <div class="brand">حِفظي <span class="fl" id="brandEm">🌸</span><span class="ver" id="verTag">v14</span><small>متابعة الحفظ والمراجعة الأسبوعية</small></div>
     <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end"><button class="sync prof" id="profBtn">🌸</button><div class="sync" id="sync">📱 على الموبايل</div></div>
   </header>
   <div class="ayah-deco">﴿ وَلَقَدْ يَسَّرْنَا الْقُرْآنَ لِلذِّكْرِ فَهَلْ مِن مُّدَّكِرٍ ﴾</div>
@@ -237,7 +237,7 @@ const AYAT=[7,286,200,176,120,165,206,75,129,109,123,111,43,52,99,128,111,110,98
 const DAYS=["الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"];
 const ROWS={n:"تثبيت الجديد",r:"مراجعة قريبة",f:"مراجعة بعيدة"};
 const LS="hifzi_state_v1";
-const APP_VERSION="13";
+const APP_VERSION="14";
 const FK="hifzi_font_v1";let fontZ="1.15";try{fontZ=localStorage.getItem(FK)||"1.15"}catch(e){}
 function applyFont(){document.documentElement.style.setProperty("--z",fontZ)}
 applyFont();
