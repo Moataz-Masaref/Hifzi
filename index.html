@@ -68,7 +68,7 @@ header.top{display:flex;align-items:center;justify-content:space-between;margin-
 .actions{display:flex;gap:8px;margin-top:10px}
 .actions .btn{flex:1}
 nav.tabs{position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,.95);backdrop-filter:blur(8px);display:flex;justify-content:space-around;padding:8px 6px calc(8px + env(safe-area-inset-bottom));box-shadow:0 -4px 18px rgba(214,160,196,.18);z-index:5}
-nav.tabs button{background:none;color:var(--muted);font-size:12px;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 14px;border-radius:14px}
+nav.tabs button{background:none;color:var(--muted);font-size:12px;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 10px;border-radius:14px}
 nav.tabs button b{font-size:20px}
 nav.tabs button.on{background:var(--pink);color:#c0608c}
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
@@ -93,11 +93,39 @@ label.f{display:block;font-size:13px;font-weight:700;margin:10px 0 4px}
 .modal h2{margin:0 0 6px;font-size:17px;color:#c86f9a}
 @keyframes up{from{transform:translateY(40px);opacity:0}}
 @keyframes fade{from{opacity:0}}
-.toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);background:#fff;padding:10px 18px;border-radius:18px;box-shadow:var(--shadow);font-size:13px;font-weight:700;z-index:30;color:#c86f9a}
+.toast{position:fixed;bottom:96px;pointer-events:none;left:50%;transform:translateX(-50%);background:#fff;padding:10px 18px;border-radius:18px;box-shadow:var(--shadow);font-size:13px;font-weight:700;z-index:30;color:#c86f9a}
 .hidden{display:none!important}
 .check{display:flex;align-items:center;gap:8px;margin-top:12px;font-weight:700}
 .check input{width:20px;height:20px;accent-color:var(--mint-d)}
 .picks{max-height:150px;overflow:auto;background:#fcf7fa;border-radius:14px;padding:6px}
+.prof{border:0;font-family:inherit;font-weight:700;color:#c0608c;background:var(--pink);cursor:pointer}
+.badge{position:absolute;top:3px;left:4px;font-size:12px}
+.seg{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:6px}
+.seg button{background:#f6eef4;border-radius:12px;padding:8px 2px;font-size:12px;font-weight:700;color:var(--text)}
+.seg button.on{background:var(--mint);outline:2px solid var(--mint-d)}
+.seg button.on.m{background:var(--peach);outline-color:var(--peach-d)}
+.seg button.on.w{background:#fde0e4;outline-color:#e57f8f}
+.seg button.on.x{background:#f6eef4;outline-color:#d9c9d6}
+.rate3{display:grid;gap:8px;margin-top:10px}
+.rate3 button{border-radius:16px;padding:14px;font-size:15px;font-weight:700;color:var(--text)}
+.map{display:grid;grid-template-columns:repeat(6,1fr);gap:5px}
+.tile{border-radius:10px;padding:5px 2px;text-align:center;font-size:10px;line-height:1.25;min-height:46px;display:flex;flex-direction:column;justify-content:center;cursor:pointer;color:var(--text);border:2px solid transparent}
+.tile b{font-size:11px;opacity:.6}
+.tile.weak{border-color:#e57f8f}
+.legend2{display:flex;flex-wrap:wrap;gap:10px;font-size:11px;color:var(--muted);margin:8px 0}
+.legend2 i{display:inline-block;width:12px;height:12px;border-radius:4px;vertical-align:middle;margin-left:4px}
+.bars{display:flex;align-items:flex-end;gap:8px;height:110px;margin-top:10px}
+.bar{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;font-size:11px;color:var(--muted)}
+.bar i{display:block;width:100%;border-radius:10px 10px 4px 4px;background:linear-gradient(180deg,var(--pink-d),var(--lav-d));min-height:4px}
+.dist{display:flex;height:16px;border-radius:10px;overflow:hidden;margin-top:8px;background:#f6eef4}
+.dist i{display:block;height:100%}
+.pitem{display:flex;align-items:center;gap:10px;padding:12px;border-radius:16px;background:#faf3f8;margin-bottom:8px;cursor:pointer}
+.pitem.on{background:var(--pink);outline:2px solid var(--pink-d)}
+.pitem .em{font-size:24px}
+.pitem .nm{flex:1;font-weight:700}
+.emo{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.emo button{font-size:22px;background:#f6eef4;border-radius:12px;width:42px;height:42px}
+.emo button.on{background:var(--pink);outline:2px solid var(--pink-d)}
 .ayah-deco{font-family:'Amiri',serif;color:#d9a3c0;font-size:13px;text-align:center;margin:4px 0 12px}
 </style>
 </head>
@@ -105,7 +133,7 @@ label.f{display:block;font-size:13px;font-weight:700;margin:10px 0 4px}
 <div class="wrap">
   <header class="top">
     <div class="brand">حِفظي 🌸<small>متابعة الحفظ والمراجعة الأسبوعية</small></div>
-    <div class="sync" id="sync">📱 على الموبايل</div>
+    <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end"><button class="sync prof" id="profBtn">🌸</button><div class="sync" id="sync">📱 على الموبايل</div></div>
   </header>
   <div class="ayah-deco">﴿ وَلَقَدْ يَسَّرْنَا الْقُرْآنَ لِلذِّكْرِ فَهَلْ مِن مُّدَّكِرٍ ﴾</div>
   <div id="nojs" class="card" style="background:#ffe8da;text-align:center;line-height:1.8">
@@ -119,6 +147,7 @@ label.f{display:block;font-size:13px;font-weight:700;margin:10px 0 4px}
 <nav class="tabs">
   <button data-tab="week" class="on"><b>🗓️</b>الأسبوع</button>
   <button data-tab="record"><b>📖</b>سجل الحفظ</button>
+  <button data-tab="stats"><b>📊</b>إنجازي</button>
   <button data-tab="settings"><b>⚙️</b>الإعدادات</button>
 </nav>
 <div id="modalRoot"></div>
@@ -151,26 +180,49 @@ function label(it){const s=it.s,full=it.f===1&&it.t===AYAT[s-1];return `${SURAHS
 function sortP(a,b){return a.date<b.date?-1:a.date>b.date?1:(a.s-b.s)||(a.f-b.f)}
 function toast(m){const t=$("#toast");t.textContent=m;t.classList.remove("hidden");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.add("hidden"),1800)}
 
-/* ---------- storage: الموبايل + Google Drive ---------- */
+/* ---------- storage: ملفات شخصية + الموبايل + Google Drive ---------- */
 let lsOK=true, syncTimer=null, syncing=false, syncAgain=false;
-const SK="hifzi_sync_v1"; // إعدادات المزامنة منفصلة عشان متتمسحش مع الاسترجاع
+const SK="hifzi_sync_v1", PK="hifzi_profiles_v1";
 let sync={url:"",key:"",last:0};
-function loadLocal(){try{localStorage.setItem("__t","1");localStorage.removeItem("__t");const j=localStorage.getItem(LS);if(j){const s=JSON.parse(j);if(s&&s.v)state=s}
+let profiles={list:[{id:"p1",name:"أنا",emoji:"🌸"}],current:"p1",updatedAt:0};
+const skey=id=>id==="p1"?LS:"hifzi_state_"+id;
+function blank(){return {v:1,updatedAt:0,settings:{sessionDay:null,nearWeeks:4,farPerDay:1},portions:[],weeks:{}}}
+function readState(id){try{const j=localStorage.getItem(skey(id));if(j){const x=JSON.parse(j);if(x&&x.v)return x}}catch(e){}return blank()}
+function writeState(id,x){try{localStorage.setItem(skey(id),JSON.stringify(x))}catch(e){lsOK=false}}
+function saveProfiles(){try{localStorage.setItem(PK,JSON.stringify(profiles))}catch(e){}}
+function curProfile(){return profiles.list.find(p=>p.id===profiles.current)||profiles.list[0]}
+function loadLocal(){try{localStorage.setItem("__t","1");localStorage.removeItem("__t");
+  const pj=localStorage.getItem(PK);if(pj){const p=JSON.parse(pj);if(p&&p.list&&p.list.length)profiles=p}
+  if(!profiles.list.some(p=>p.id===profiles.current))profiles.current=profiles.list[0].id;
+  state=readState(profiles.current);
   const k=localStorage.getItem(SK);if(k)sync=Object.assign(sync,JSON.parse(k))}catch(e){lsOK=false}}
 function saveSync(){try{localStorage.setItem(SK,JSON.stringify(sync))}catch(e){}}
-function save(){state.updatedAt=Date.now();try{localStorage.setItem(LS,JSON.stringify(state))}catch(e){lsOK=false}
-  if(sync.url){clearTimeout(syncTimer);syncTimer=setTimeout(pushDrive,1500);setSync("⏳ بيحفظ على Drive...")} else updSync()}
+function queueDrive(){if(sync.url){clearTimeout(syncTimer);syncTimer=setTimeout(pushDrive,1500);setSync("⏳ بيحفظ على Drive...")} else updSync()}
+function save(){state.updatedAt=Date.now();writeState(profiles.current,state);queueDrive()}
+function profilesChanged(){profiles.updatedAt=Date.now();saveProfiles();queueDrive();updHeader()}
+function switchProfile(id){writeState(profiles.current,state);profiles.current=id;saveProfiles();state=readState(id);weekKey=null;tab="week";updHeader();render()}
+function bundle(){const states={};let all=[],up=profiles.updatedAt||0;
+  profiles.list.forEach(p=>{const x=p.id===profiles.current?state:readState(p.id);states[p.id]=x;all=all.concat(x.portions||[]);up=Math.max(up,x.updatedAt||0)});
+  return {v:2,profiles:profiles.list,profilesUpdatedAt:profiles.updatedAt||0,states,portions:all,updatedAt:up}}
+function applyBundle(b){
+  if(b&&b.profiles&&b.states){profiles.list=b.profiles;profiles.updatedAt=b.profilesUpdatedAt||0;
+    b.profiles.forEach(p=>writeState(p.id,b.states[p.id]||blank()));
+    if(!profiles.list.some(p=>p.id===profiles.current))profiles.current=profiles.list[0].id;
+    saveProfiles();state=readState(profiles.current)}
+  else if(b&&b.v){state=b;writeState(profiles.current,state)}
+  weekKey=null;updHeader();updSync();render()}
 function setSync(t){$("#sync").textContent=t}
 function updSync(){
   if(!lsOK) return setSync("⚠️ مش بيحفظ – افتحيه من Chrome");
   if(sync.url) return setSync(sync.last?"☁️ محفوظ على Drive":"☁️ Drive مستني أول حفظ");
   setSync("📱 على الموبايل بس");
 }
+function updHeader(){const p=curProfile();$("#profBtn").textContent=p.emoji+" "+p.name+" ▾"}
 async function pushDrive(){
   if(!sync.url)return; if(syncing){syncAgain=true;return}
   syncing=true;
   try{
-    const r=await fetch(sync.url,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({key:sync.key,data:state})});
+    const r=await fetch(sync.url,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({key:sync.key,data:bundle()})});
     const j=await r.json(); if(!j.ok) throw j.error||"err";
     sync.last=Date.now();saveSync();setSync("☁️ محفوظ على Drive");
   }catch(e){setSync("⚠️ Drive مش متاح – محفوظ على الموبايل")}
@@ -182,19 +234,33 @@ async function pullDrive(){
 }
 async function initDrive(){
   if(!sync.url)return;
-  try{const cloud=await pullDrive();
-    if(cloudBetter(cloud)){state=cloud;try{localStorage.setItem(LS,JSON.stringify(state))}catch(e){};weekKey=null;render();toast("اتحمّلت آخر نسخة من Drive ☁️")}
-    else if((state.updatedAt||0)>((cloud&&cloud.updatedAt)||0)) pushDrive();
+  try{const cloud=await pullDrive(), L=bundle();
+    if(cloudBetter(cloud)){applyBundle(cloud);toast("اتحمّلت آخر نسخة من Drive ☁️")}
+    else if(L.updatedAt>((cloud&&cloud.updatedAt)||0)) pushDrive();
     sync.last=sync.last||Date.now();saveSync();setSync("☁️ محفوظ على Drive");
   }catch(e){setSync("⚠️ Drive مش متاح – محفوظ على الموبايل")}
 }
-function cloudBetter(c){return !!(c&&c.v&&c.portions&&c.portions.length&&((c.updatedAt||0)>(state.updatedAt||0)||state.portions.length<c.portions.length))}
+function cloudBetter(c){const L=bundle();return !!(c&&c.v&&c.portions&&c.portions.length&&((c.updatedAt||0)>L.updatedAt||L.portions.length<c.portions.length))}
 function downloadBackup(){
-  const blob=new Blob([JSON.stringify(state)],{type:"application/json"});
+  state.settings.lastBackup=today();save();
+  const blob=new Blob([JSON.stringify(bundle())],{type:"application/json"});
   const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="hifzi_backup_"+today()+".json";
   document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),2000);
-  state.settings.lastBackup=today();save();
 }
+
+/* ---------- تقييم المراجعة ---------- */
+const RATE={g:{t:"ممتاز",e:"🌸",c:"#6fc09c"},m:{t:"أخطاء بسيطة",e:"🙂",c:"#f0a57e"},w:{t:"محتاجة إعادة",e:"🔁",c:"#e57f8f"}};
+const overlap=(p,it)=>p.s===it.s&&p.f<=it.t&&it.f<=p.t;
+function strength(p){const v=p.rv?Object.values(p.rv):[];if(!v.length)return "";v.sort((a,b)=>a.d<b.d?-1:a.d>b.d?1:0);return v[v.length-1].r}
+function applyRating(W,key,c){
+  const id=W+"|"+key, day=addDays(W,+key.split("_")[0]);
+  state.portions.forEach(p=>{if(p.rv&&p.rv[id])delete p.rv[id];
+    if(c&&c.done&&c.rating&&c.items.some(it=>overlap(p,it))){(p.rv||(p.rv={}))[id]={d:day,r:c.rating}}});
+}
+// الضعيف بيتكرر مرتين في الدورة، والمتوسط مرتين لو المحفوظ كتير
+const weightOf=(p,n)=>{const st=strength(p);return st==="w"?2:(st==="m"&&n>=8)?2:1};
+function weighted(list){const out=[];const half=Math.ceil(list.length/2);list.forEach(p=>out.push(p));
+  list.forEach((p,i)=>{if(weightOf(p,list.length)>1)out.splice(Math.min(out.length,(i+half)%(out.length+1)),0,p)});return out}
 
 /* ---------- classification ---------- */
 function classify(p,ref_){ // relative to week start ref_
@@ -209,12 +275,13 @@ function groups(ref_){const g={n:[],r:[],f:[]};state.portions.slice().sort(sortP
 /* ---------- auto distribute ---------- */
 function distribute(){
   const W=weekKey,g=groups(W),wk=state.weeks[W]||(state.weeks[W]={cells:{}});
-  const nearList=g.r, farList=g.f.slice().sort((a,b)=>(a.s-b.s)||(a.f-b.f));
+  const nearList=weighted(g.r), farList=weighted(g.f.slice().sort((a,b)=>(a.s-b.s)||(a.f-b.f)));
   const per=Math.max(1,state.settings.farPerDay|0);
   const weekIdx=Math.round(parse(W).getTime()/(7*864e5));
   const farStart=farList.length?((weekIdx*7*per)%farList.length):0;
   for(let d=0;d<7;d++){
     const set=(row,items)=>{const k=d+"_"+row,c=wk.cells[k];if(c&&c.done)return;
+      const seen={};items=items.filter(p=>!seen[p.id]&&(seen[p.id]=1));
       wk.cells[k]={items:items.map(p=>({s:p.s,f:p.f,t:p.t})),note:(c&&c.note)||"",done:false}};
     if(d>0) set("n",g.n); // اليوم الأول = يوم الحصة نفسه
     if(nearList.length){
@@ -231,7 +298,7 @@ function render(){
   document.querySelectorAll("nav.tabs button").forEach(b=>b.classList.toggle("on",b.dataset.tab===tab));
   if(state.settings.sessionDay==null&&tab==="week"){renderSetup();return}
   if(!weekKey) weekKey=weekStartOf(today());
-  ({week:renderWeek,record:renderRecord,settings:renderSettings})[tab]();
+  ({week:renderWeek,record:renderRecord,stats:renderStats,settings:renderSettings})[tab]();
 }
 
 function renderSetup(){
@@ -254,7 +321,7 @@ function renderWeek(){
     for(const r of ["n","r","f"]){
       const c=wk.cells[d+"_"+r];
       if(!c||(!(c.items&&c.items.length)&&!c.note)) rows+=`<div class="cell ${r} empty" data-c="${d}_${r}">+</div>`;
-      else rows+=`<div class="cell ${r} ${c.done?"done":""}" data-c="${d}_${r}"><div class="txt">${c.items.map(label).map(esc).join("<br>")}${c.note?`<span class="note">${esc(c.note)}</span>`:""}</div><button class="tick" data-t="${d}_${r}">✓</button></div>`;
+      else rows+=`<div class="cell ${r} ${c.done?"done":""}" data-c="${d}_${r}">${c.done&&c.rating?`<span class="badge">${RATE[c.rating].e}</span>`:""}<div class="txt">${c.items.map(label).map(esc).join("<br>")}${c.note?`<span class="note">${esc(c.note)}</span>`:""}</div><button class="tick" data-t="${d}_${r}">✓</button></div>`;
     }
     rows+=`</div>`;
   }
@@ -290,7 +357,9 @@ function renderWeek(){
     if(!state.portions.length){toast("سجّلي محفوظك الأول من «سجل الحفظ»");return}
     distribute();
   };
-  document.querySelectorAll(".tick").forEach(b=>b.onclick=e=>{e.stopPropagation();const wk2=state.weeks[W];const c=wk2.cells[b.dataset.t];c.done=!c.done;save();render();if(c.done)toast("ما شاء الله 🌸")});
+  document.querySelectorAll(".tick").forEach(b=>b.onclick=e=>{e.stopPropagation();const key=b.dataset.t,c=state.weeks[W].cells[key];
+    if(c.done){c.done=false;delete c.rating;applyRating(W,key,c);save();render();return}
+    rateModal(W,key)});
   document.querySelectorAll(".cell").forEach(c=>c.onclick=()=>cellModal(c.dataset.c));
 }
 
@@ -299,7 +368,7 @@ function renderRecord(){
   const cover={};state.portions.forEach(p=>{const s=cover[p.s]||(cover[p.s]=new Set());for(let i=p.f;i<=p.t;i++)s.add(i)});
   let tot=0,full=0;Object.entries(cover).forEach(([s,set])=>{tot+=set.size;if(set.size===AYAT[s-1])full++});
   const sec=(k,title,color,list)=>`<div class="card sec"><h3><i class="dot" style="background:${color}"></i>${title} <span style="color:var(--muted);font-size:12px">(${ar(list.length)})</span></h3>
-    ${list.length?list.map(p=>`<div class="item"><div class="t"><b>${esc(label(p))}</b><span>${nice(p.date)}${p.note?" • "+esc(p.note):""}</span></div>
+    ${list.length?list.map(p=>`<div class="item"><div class="t"><b>${esc(label(p))} ${strength(p)?RATE[strength(p)].e:""}</b><span>${nice(p.date)}${p.note?" • "+esc(p.note):""}</span></div>
     <div class="row"><button class="ico" data-e="${p.id}">✏️</button><button class="ico" data-d="${p.id}">🗑️</button></div></div>`).join(""):'<div class="empty-msg">مفيش حاجة هنا</div>'}</div>`;
   $("#view").innerHTML=`
   <div class="stats"><div class="stat"><b>${ar(tot)}</b><span>آية محفوظة</span></div>
@@ -352,23 +421,23 @@ function renderSettings(){
     <textarea class="inp" id="im" rows="3" placeholder="الصقي الكود هنا" dir="ltr" style="font-size:11px;margin-top:8px"></textarea>
     <div class="row" style="margin-top:8px"><button class="btn ghost sm" id="imb">استرجاع</button></div></details>
   </div>
-  <div class="card"><div class="hint">🌸 حِفظي v6 – بيشتغل من غير نت. الحفظ على Drive اختياري وبيبقى على حساب Google بتاعك أنتِ.</div></div>`;
+  <div class="card"><div class="hint">🌸 حِفظي v7 – بيشتغل من غير نت. الحفظ على Drive اختياري وبيبقى على حساب Google بتاعك أنتِ.</div></div>`;
   $("#bk").value=JSON.stringify(state);
   $("#sv").onclick=()=>{s.sessionDay=+$("#sd").value;s.nearWeeks=Math.min(12,Math.max(1,+$("#nw").value||4));s.farPerDay=Math.min(5,Math.max(1,+$("#fp").value||1));weekKey=null;save();toast("اتحفظت الإعدادات ✓");render()};
   $("#cp").onclick=async()=>{try{await navigator.clipboard.writeText($("#bk").value);toast("اتنسخ ✓")}catch(e){$("#bk").select();toast("حدد النص وانسخه يدوي")}};
-  const restore=txt=>{try{const s2=JSON.parse(txt);if(!s2.portions||!s2.settings)throw 0;confirmModal("الاسترجاع هيستبدل كل البيانات الحالية. تكملي؟",()=>{state=s2;weekKey=null;save();render();toast("اترجعت البيانات ✓")})}catch(e){toast("الملف/الكود مش صحيح")}};
+  const restore=txt=>{try{const s2=JSON.parse(txt);if(!(s2.portions&&(s2.settings||s2.profiles)))throw 0;confirmModal(s2.profiles?"الاسترجاع هيستبدل كل البيانات وكل الأشخاص. تكملي؟":"هيسترجع النسخة دي في ملف «"+curProfile().name+"». تكملي؟",()=>{applyBundle(s2);save();toast("اترجعت البيانات ✓")})}catch(e){toast("الملف/الكود مش صحيح")}};
   $("#imb").onclick=()=>restore($("#im").value);
   $("#sconn").onclick=async()=>{const url=$("#surl").value.trim(),key=$("#skey").value.trim();
     if(!/^https:\/\/script\.google\.com\/.+\/exec/.test(url)){toast("الرابط لازم يبدأ بـ script.google.com وينتهي بـ exec");return}
     if(!key){toast("اكتبي كلمة السر");return}
     const old={...sync};sync.url=url;sync.key=key;toast("⏳ بيجرّب...");
     try{const cloud=await pullDrive();saveSync();
-      if(cloudBetter(cloud)){confirmModal("لقيت بياناتك على Drive. أحمّلها على الموبايل؟",()=>{state=cloud;try{localStorage.setItem(LS,JSON.stringify(state))}catch(e){};weekKey=null;updSync();render();toast("اتحمّلت ✓")})}
+      if(cloudBetter(cloud)){confirmModal("لقيت بياناتك على Drive. أحمّلها على الموبايل؟",()=>{applyBundle(cloud);toast("اتحمّلت ✓")})}
       else{await pushDrive();toast("✅ اتوصل واتحفظ على Drive")}
       sync.last=sync.last||Date.now();saveSync();updSync();render();
     }catch(e){sync=old;toast("❌ مش قادر يوصل – راجعي الرابط وكلمة السر")}};
   $("#spull")&&($("#spull").onclick=async()=>{try{const cloud=await pullDrive();if(!cloud||!cloud.v){toast("مفيش بيانات على Drive");return}
-    confirmModal("هيستبدل بيانات الموبايل بالنسخة اللي على Drive. تكملي؟",()=>{state=cloud;try{localStorage.setItem(LS,JSON.stringify(state))}catch(e){};weekKey=null;render();toast("اترجعت من Drive ✓")})}catch(e){toast("❌ Drive مش متاح")}});
+    confirmModal("هيستبدل بيانات الموبايل بالنسخة اللي على Drive. تكملي؟",()=>{applyBundle(cloud);toast("اترجعت من Drive ✓")})}catch(e){toast("❌ Drive مش متاح")}});
   $("#soff")&&($("#soff").onclick=()=>confirmModal("تفصلي الحفظ على Drive؟ (البيانات اللي هناك مش هتتمسح)",()=>{sync={url:"",key:"",last:0};saveSync();updSync();render()}));
   $("#dl").onclick=()=>{try{downloadBackup();toast("اتنزلت النسخة ✓")}catch(e){toast("استخدمي النسخ واللصق")}};
   $("#fileIn").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>restore(r.result);r.readAsText(f)};
@@ -422,15 +491,131 @@ function cellModal(key){
     <details style="margin-top:8px"><summary style="font-weight:700;font-size:13px;cursor:pointer">إضافة مقطع يدوي</summary>${surahPicker("c")}
     <div class="row" style="margin-top:8px"><button class="btn lav sm" id="cadd">إضافة المقطع</button></div></details>
     <label class="f">ملاحظة</label><input class="inp" id="cnote" value="${esc(c.note||"")}" placeholder="مثلاً: سمّعت لنفسي مرتين">
-    <label class="check"><input type="checkbox" id="cdone" ${c.done?"checked":""}> خلصت المراجعة دي ✓</label>
+    <label class="f">التقييم</label>
+    <div class="seg" id="cseg">${[["","لسه ⬜","x"],["g","ممتاز 🌸",""],["m","أخطاء بسيطة 🙂","m"],["w","محتاجة إعادة 🔁","w"]].map(([v,t,k])=>`<button data-r="${v}" class="${k} ${(c.done?(c.rating||"g"):"")===v?"on":""}">${t}</button>`).join("")}</div>
     <div class="actions"><button class="btn" id="ok">حفظ</button><button class="btn ghost" id="clr">مسح الخانة</button><button class="btn ghost" id="cn">إلغاء</button></div>`);
   draw(); bindPicker("c");
   document.querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>{const p=sugg[+b.dataset.p];c.items.push({s:p.s,f:p.f,t:p.t});draw()});
   $("#cadd").onclick=()=>{const it=readPicker("c");if(it){c.items.push(it);draw()}};
   $("#cn").onclick=closeModal;
-  $("#clr").onclick=()=>{if(state.weeks[W])delete state.weeks[W].cells[key];save();closeModal();render()};
-  $("#ok").onclick=()=>{c.note=$("#cnote").value.trim();c.done=$("#cdone").checked;
-    const w=state.weeks[W]||(state.weeks[W]={cells:{}});w.cells[key]=c;save();closeModal();render();if(c.done)toast("ما شاء الله 🌸")};
+  $("#clr").onclick=()=>{if(state.weeks[W])delete state.weeks[W].cells[key];applyRating(W,key,null);save();closeModal();render()};
+  let rsel=c.done?(c.rating||"g"):"";
+  document.querySelectorAll("#cseg button").forEach(b=>b.onclick=()=>{rsel=b.dataset.r;document.querySelectorAll("#cseg button").forEach(x=>x.classList.toggle("on",x===b))});
+  $("#ok").onclick=()=>{c.note=$("#cnote").value.trim();c.done=!!rsel;if(rsel)c.rating=rsel;else delete c.rating;
+    const w=state.weeks[W]||(state.weeks[W]={cells:{}});w.cells[key]=c;applyRating(W,key,c);save();closeModal();render();if(c.done)toast(c.rating==="w"?"ولا يهمك، هتتكرر أكتر 💪":"ما شاء الله 🌸")};
+}
+
+/* ---------- تقييم سريع بعد ✓ ---------- */
+function rateModal(W,key){
+  const c=state.weeks[W].cells[key];
+  openModal(`<h2>المراجعة كانت عاملة إزاي؟</h2><div class="hint">${c.items.map(label).map(esc).join("، ")}</div>
+  <div class="rate3">
+    <button data-r="g" style="background:var(--mint)">🌸 ممتاز – من غير أخطاء</button>
+    <button data-r="m" style="background:var(--peach)">🙂 أخطاء بسيطة</button>
+    <button data-r="w" style="background:#fde0e4">🔁 محتاجة إعادة</button>
+    <button data-r="" class="btn ghost">✓ خلصت من غير تقييم</button>
+  </div>`);
+  document.querySelectorAll(".rate3 button").forEach(b=>b.onclick=()=>{c.done=true;if(b.dataset.r)c.rating=b.dataset.r;else delete c.rating;
+    applyRating(W,key,c);save();closeModal();render();toast(c.rating==="w"?"ولا يهمك، هتتكرر أكتر 💪":"ما شاء الله 🌸")});
+}
+
+/* ---------- إنجازي: الخريطة + التقرير الشهري ---------- */
+let statMonth=null, mapOnlyMem=false;
+const MCOL={n:"#e897ba",r:"#a891dc",f:"#6fc09c"};
+function surahInfo(){
+  const ref_=weekStartOf(today()), info={};
+  state.portions.forEach(p=>{const o=info[p.s]||(info[p.s]={set:new Set(),ps:[],cls:"f",weak:false});
+    for(let i=p.f;i<=p.t;i++)o.set.add(i);o.ps.push(p);
+    const c=classify(p,ref_);if(c==="n"||(c==="r"&&o.cls==="f"))o.cls=c;if(strength(p)==="w")o.weak=true});
+  return info;
+}
+function monthAyahs(){ // كل آية بتتحسب في الشهر اللي اتحفظت فيه أول مرة
+  const cov={},per={};state.portions.slice().sort(sortP).forEach(p=>{const set=cov[p.s]||(cov[p.s]=new Set());let n=0;
+    for(let i=p.f;i<=p.t;i++)if(!set.has(i)){set.add(i);n++}const m=p.date.slice(0,7);per[m]=(per[m]||0)+n});
+  return per;
+}
+function renderStats(){
+  const info=surahInfo();
+  if(!statMonth)statMonth=today().slice(0,7);
+  const [Y,M]=statMonth.split("-").map(Number), mStart=statMonth+"-01", mEnd=fmt(new Date(Y,M,0));
+  const mName=new Date(Y,M-1,1).toLocaleDateString("ar-EG",{month:"long",year:"numeric"});
+  const newAy=(monthAyahs()[statMonth]||0);
+  const sessions=new Set(state.portions.filter(p=>p.date>=mStart&&p.date<=mEnd).map(p=>weekStartOf(p.date))).size;
+  let filled=0,done=0;const rc={g:0,m:0,w:0},weeksArr=[];
+  Object.keys(state.weeks).sort().forEach(W=>{if(addDays(W,6)<mStart||W>mEnd)return;let wf=0,wd=0;
+    Object.entries(state.weeks[W].cells).forEach(([k,c])=>{const ds=addDays(W,+k.split("_")[0]);if(ds<mStart||ds>mEnd)return;
+      if((c.items&&c.items.length)||c.note){filled++;wf++;if(c.done){done++;wd++;if(c.rating)rc[c.rating]++}}});
+    if(wf)weeksArr.push({W,p:Math.round(wd/wf*100)})});
+  const pct=filled?Math.round(done/filled*100):0, rt=rc.g+rc.m+rc.w;
+  const weak=state.portions.filter(p=>strength(p)==="w").sort(sortP);
+  let tiles="";
+  for(let s_=1;s_<=114;s_++){const o=info[s_];if(mapOnlyMem&&!o)continue;
+    const n=o?o.set.size:0,pc=Math.round(n/AYAT[s_-1]*100),col=o?MCOL[o.cls]:"#f6eef4";
+    const bg=!o?"#f6eef4":pc>=100?col:`linear-gradient(to left, ${col} ${pc}%, #f6eef4 ${pc}%)`;
+    tiles+=`<div class="tile ${o&&o.weak?"weak":""}" data-s="${s_}" style="background:${bg}"><b>${ar(s_)}</b>${SURAHS[s_-1]}</div>`}
+  $("#view").innerHTML=`
+  <div class="card"><h3 style="margin:0 0 4px">🗺️ خريطة الحفظ</h3>
+    <div class="legend2"><span><i style="background:#e897ba"></i>جديد</span><span><i style="background:#a891dc"></i>قريب</span><span><i style="background:#6fc09c"></i>بعيد</span><span><i style="background:#fff;border:2px solid #e57f8f"></i>محتاجة إعادة</span><span>اللون الجزئي = جزء من السورة</span></div>
+    <div class="row" style="margin-bottom:8px"><button class="btn ${mapOnlyMem?"ghost":"lav"} sm" id="mAll">المصحف كله</button><button class="btn ${mapOnlyMem?"lav":"ghost"} sm" id="mMem">المحفوظ بس</button></div>
+    <div class="map">${tiles||'<div class="empty-msg" style="grid-column:1/-1">لسه مفيش حفظ متسجل</div>'}</div>
+  </div>
+  <div class="card">
+    <div class="weeknav"><button class="circ" id="mPrev">›</button><div class="rng"><b>📅 تقرير ${mName}</b></div><button class="circ" id="mNext">‹</button></div>
+    <div class="stats" style="margin:12px 0 0">
+      <div class="stat"><b>${ar(newAy)}</b><span>آية جديدة</span></div>
+      <div class="stat"><b>${ar(sessions)}</b><span>حصة</span></div>
+      <div class="stat"><b>${ar(pct)}٪</b><span>التزام بالمراجعة</span></div>
+    </div>
+    <div class="hint" style="margin-top:8px">خلصتي ${ar(done)} من ${ar(filled)} مراجعة متخططة في الشهر ده</div>
+    ${weeksArr.length?`<label class="f">الإنجاز كل أسبوع</label><div class="bars">${weeksArr.map(w=>`<div class="bar"><span>${ar(w.p)}٪</span><i style="height:${Math.max(4,w.p)}%"></i><span>${nice(w.W)}</span></div>`).join("")}</div>`:""}
+    ${rt?`<label class="f">تقييم المراجعات</label><div class="dist">${["g","m","w"].map(k=>rc[k]?`<i style="width:${rc[k]/rt*100}%;background:${RATE[k].c}"></i>`:"").join("")}</div>
+      <div class="legend2">${["g","m","w"].map(k=>`<span>${RATE[k].e} ${RATE[k].t}: ${ar(rc[k])}</span>`).join("")}</div>`:""}
+  </div>
+  <div class="card sec"><h3>🔁 محتاجة تركيز (${ar(weak.length)})</h3>
+    ${weak.length?weak.map(p=>`<div class="item"><div class="t"><b>${esc(label(p))}</b><span>آخر تقييم: محتاجة إعادة – بتتكرر أكتر في التوزيع التلقائي</span></div></div>`).join(""):'<div class="empty-msg">مفيش مقاطع ضعيفة 🌸</div>'}
+  </div>`;
+  $("#mAll").onclick=()=>{mapOnlyMem=false;render()};$("#mMem").onclick=()=>{mapOnlyMem=true;render()};
+  $("#mPrev").onclick=()=>{statMonth=fmt(new Date(Y,M-2,1)).slice(0,7);render()};
+  $("#mNext").onclick=()=>{statMonth=fmt(new Date(Y,M,1)).slice(0,7);render()};
+  document.querySelectorAll(".tile").forEach(t=>t.onclick=()=>surahModal(+t.dataset.s));
+}
+function surahModal(s_){
+  const ps=state.portions.filter(p=>p.s===s_).sort(sortP), set=new Set();ps.forEach(p=>{for(let i=p.f;i<=p.t;i++)set.add(i)});
+  const ref_=weekStartOf(today()), cn={n:"جديد",r:"قريب",f:"بعيد"};
+  openModal(`<h2>سورة ${SURAHS[s_-1]}</h2><div class="hint">محفوظ ${ar(set.size)} من ${ar(AYAT[s_-1])} آية (${ar(Math.round(set.size/AYAT[s_-1]*100))}٪)</div>
+    <div class="prog"><i style="width:${set.size/AYAT[s_-1]*100}%"></i></div>
+    <div style="margin-top:10px">${ps.length?ps.map(p=>{const st=strength(p),c=classify(p,ref_);return `<div class="item"><div class="t"><b>${esc(label(p))} ${st?RATE[st].e:""}</b><span>${nice(p.date)} • ${cn[c]||""}${st?" • "+RATE[st].t:""}</span></div></div>`}).join(""):'<div class="empty-msg">لسه متحفظتش</div>'}</div>
+    <div class="actions"><button class="btn" id="sAdd">+ سجّلي حفظ من السورة دي</button><button class="btn ghost" id="sCl">إغلاق</button></div>`);
+  $("#sCl").onclick=closeModal;
+  $("#sAdd").onclick=()=>{closeModal();portionModal(null,today());$("#ps").value=s_;$("#pf").value=1;$("#pt").value=1};
+}
+
+/* ---------- الأشخاص ---------- */
+const EMOJIS=["🌸","🌷","🌙","⭐","🦋","🍃","📘","🧸","🌼","🐣"];
+function profileModal(){
+  openModal(`<h2>مين بيستخدم التطبيق؟</h2><div class="hint">كل شخص له حفظه وجدوله لوحده.</div>
+    <div style="margin-top:10px">${profiles.list.map(p=>`<div class="pitem ${p.id===profiles.current?"on":""}" data-id="${p.id}"><span class="em">${p.emoji}</span><span class="nm">${esc(p.name)}</span>
+      <button class="ico" data-ed="${p.id}">✏️</button>${profiles.list.length>1?`<button class="ico" data-del="${p.id}">🗑️</button>`:""}</div>`).join("")}</div>
+    <div class="actions"><button class="btn" id="pAdd">+ إضافة شخص</button><button class="btn ghost" id="pCl">إغلاق</button></div>`);
+  $("#pCl").onclick=closeModal;$("#pAdd").onclick=()=>profileEdit(null);
+  document.querySelectorAll(".pitem").forEach(el=>el.onclick=()=>{closeModal();if(el.dataset.id!==profiles.current){switchProfile(el.dataset.id);toast("أهلاً "+curProfile().name+" "+curProfile().emoji)}});
+  document.querySelectorAll("[data-ed]").forEach(b=>b.onclick=e=>{e.stopPropagation();profileEdit(profiles.list.find(p=>p.id===b.dataset.ed))});
+  document.querySelectorAll("[data-del]").forEach(b=>b.onclick=e=>{e.stopPropagation();const p=profiles.list.find(x=>x.id===b.dataset.del);
+    confirmModal(`تمسحي «${p.name}» وكل حفظه؟ الخطوة دي مش بترجع.`,()=>{
+      profiles.list=profiles.list.filter(x=>x.id!==p.id);try{localStorage.removeItem(skey(p.id))}catch(e){}
+      if(profiles.current===p.id){profiles.current=profiles.list[0].id;state=readState(profiles.current);weekKey=null}
+      profilesChanged();render();toast("اتمسح")})});
+}
+function profileEdit(p){
+  const isNew=!p;let em=p?p.emoji:EMOJIS[(profiles.list.length)%EMOJIS.length];
+  openModal(`<h2>${isNew?"شخص جديد":"تعديل"}</h2><label class="f">الاسم</label><input class="inp" id="pnm" value="${esc(p?p.name:"")}" placeholder="مثلاً: مريم">
+    <label class="f">الرمز</label><div class="emo">${EMOJIS.map(e=>`<button data-em="${e}" class="${e===em?"on":""}">${e}</button>`).join("")}</div>
+    <div class="actions"><button class="btn" id="pOk">حفظ</button><button class="btn ghost" id="pBack">رجوع</button></div>`);
+  document.querySelectorAll("[data-em]").forEach(b=>b.onclick=()=>{em=b.dataset.em;document.querySelectorAll("[data-em]").forEach(x=>x.classList.toggle("on",x===b))});
+  $("#pBack").onclick=profileModal;
+  $("#pOk").onclick=()=>{const nm=$("#pnm").value.trim();if(!nm){toast("اكتبي الاسم");return}
+    if(isNew){const id="p"+uid();profiles.list.push({id,name:nm,emoji:em});writeState(id,blank());profilesChanged();closeModal();switchProfile(id);toast("أهلاً "+nm+" "+em)}
+    else{p.name=nm;p.emoji=em;profilesChanged();profileModal()}};
 }
 
 /* ---------- boot ---------- */
@@ -441,7 +626,8 @@ window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredIns
 window.addEventListener("appinstalled",()=>{$("#installBar").classList.add("hidden");toast("اتثبت التطبيق 🌸")});
 $("#installBtn").onclick=async()=>{if(!deferredInstall)return;deferredInstall.prompt();await deferredInstall.userChoice;deferredInstall=null;$("#installBar").classList.add("hidden")};
 if("serviceWorker" in navigator&&(location.protocol==="https:"||location.hostname==="localhost")){navigator.serviceWorker.register("sw.js").catch(()=>{})}
- loadLocal(); updSync(); render(); initDrive();
+ loadLocal(); updHeader(); updSync(); render(); initDrive();
+$("#profBtn").onclick=profileModal;
 </script>
 </body>
 </html>
