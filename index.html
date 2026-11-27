@@ -194,6 +194,8 @@ body{transition:background .4s,color .4s}
 .switch input{width:22px;height:22px;accent-color:var(--pink-d)}
 body.noanim *,body.noanim *::before{animation:none!important;transition:none!important}
 body.noanim #floaters{display:none}
+.ver{font-family:'Tajawal',sans-serif;font-size:11px;font-weight:700;background:var(--lav);color:var(--tx-r);border-radius:10px;padding:2px 8px;vertical-align:middle;margin-right:6px;display:inline-block}
+#updBar{background:linear-gradient(135deg,var(--mint),var(--lav));display:flex;align-items:center;gap:10px}
 .ayah-deco{font-family:'Amiri',serif;color:var(--deco);font-size:13px;text-align:center;margin:4px 0 12px}
 </style>
 </head>
@@ -201,13 +203,14 @@ body.noanim #floaters{display:none}
 <div id="floaters"></div>
 <div class="wrap">
   <header class="top">
-    <div class="brand">حِفظي <span class="fl" id="brandEm">🌸</span><small>متابعة الحفظ والمراجعة الأسبوعية</small></div>
+    <div class="brand">حِفظي <span class="fl" id="brandEm">🌸</span><span class="ver" id="verTag">v10</span><small>متابعة الحفظ والمراجعة الأسبوعية</small></div>
     <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end"><button class="sync prof" id="profBtn">🌸</button><div class="sync" id="sync">📱 على الموبايل</div></div>
   </header>
   <div class="ayah-deco">﴿ وَلَقَدْ يَسَّرْنَا الْقُرْآنَ لِلذِّكْرِ فَهَلْ مِن مُّدَّكِرٍ ﴾</div>
   <div id="nojs" class="card" style="background:#ffe8da;text-align:center;line-height:1.8">
     ⚠️ <b>التطبيق مش شغّال هنا</b><br>الملف مفتوح في عارض بيعرض الشكل بس ومن غير أزرار.<br>
     نزّلي الملف على الموبايل وافتحيه بـ <b>Google Chrome</b>.</div>
+  <div id="updBar" class="card hidden"><div style="flex:1;font-size:13px">✨ <b>فيه تحديث جديد <span id="updV"></span></b><div id="updN" class="hint" style="margin-top:2px"></div></div><button class="btn mint sm" id="updBtn">تحديث</button></div>
   <div id="installBar" class="card hidden" style="background:linear-gradient(135deg,var(--sess1),var(--sess2));display:flex;align-items:center;gap:10px">
     <div style="flex:1;font-size:13px">📲 ثبّتي «حِفظي» على الشاشة الرئيسية زي أي تطبيق</div>
     <button class="btn sm" id="installBtn">تثبيت</button></div>
@@ -229,6 +232,7 @@ const AYAT=[7,286,200,176,120,165,206,75,129,109,123,111,43,52,99,128,111,110,98
 const DAYS=["الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"];
 const ROWS={n:"تثبيت الجديد",r:"مراجعة قريبة",f:"مراجعة بعيدة"};
 const LS="hifzi_state_v1";
+const APP_VERSION="10";
 
 let state={v:1,updatedAt:0,settings:{sessionDay:null,nearWeeks:4,farPerDay:1},portions:[],weeks:{}};
 let tab="week", weekKey=null;
@@ -249,72 +253,137 @@ function label(it){const s=it.s,full=it.f===1&&it.t===AYAT[s-1];return `${SURAHS
 function sortP(a,b){return a.date<b.date?-1:a.date>b.date?1:(a.s-b.s)||(a.f-b.f)}
 function toast(m){const t=$("#toast");t.textContent=m;t.classList.remove("hidden");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.add("hidden"),1800)}
 
-/* ---------- storage: ملفات شخصية + الموبايل + Google Drive ---------- */
-let lsOK=true, syncTimer=null, syncing=false, syncAgain=false;
+/* ---------- الدمج بين الموبايلات (نفس الكود اللي في سكريبت Drive) ---------- */
+function hzBlank(){return {v:1,updatedAt:0,settings:{sessionDay:null,nearWeeks:4,farPerDay:1},portions:[],weeks:{},del:{}}}
+function hzToBundle(x){if(!x)return null;if(x.profiles&&x.states)return x;if(x.v&&x.portions)return {v:3,profiles:[{id:"p1",name:"أنا",emoji:"🌸",u:0}],pdel:{},states:{p1:x}};return null}
+function hzMergeState(a,b){if(!a)return b;if(!b)return a;
+  var out={v:1,settings:null,portions:[],weeks:{},del:{},updatedAt:Math.max(a.updatedAt||0,b.updatedAt||0)};
+  out.settings=(((b.settings||{}).u||0)>((a.settings||{}).u||0))?b.settings:a.settings;
+  [a.del||{},b.del||{}].forEach(function(d){Object.keys(d).forEach(function(k){out.del[k]=Math.max(out.del[k]||0,d[k])})});
+  var pm={},ord=[];[a.portions||[],b.portions||[]].forEach(function(L){L.forEach(function(p){var o=pm[p.id];if(!o){ord.push(p.id);pm[p.id]=p}else if((p.u||0)>(o.u||0))pm[p.id]=p})});
+  out.portions=ord.map(function(id){return pm[id]}).filter(function(p){return !(out.del[p.id]>=(p.u||0))});
+  var wa=a.weeks||{},wb=b.weeks||{};
+  Object.keys(Object.assign({},wa,wb)).forEach(function(W){var ca=(wa[W]||{}).cells||{},cb=(wb[W]||{}).cells||{},cells={};
+    Object.keys(Object.assign({},ca,cb)).forEach(function(k){var x=ca[k],y=cb[k];cells[k]=!x?y:!y?x:(((y.u||0)>(x.u||0))?y:x)});out.weeks[W]={cells:cells}});
+  return out}
+function hzMergeBundle(A,B){A=hzToBundle(A);B=hzToBundle(B);if(!A)return B;if(!B)return A;
+  var pdel={};[A.pdel||{},B.pdel||{}].forEach(function(d){Object.keys(d).forEach(function(k){pdel[k]=Math.max(pdel[k]||0,d[k])})});
+  var pm={},ord=[];[A.profiles,B.profiles].forEach(function(L){L.forEach(function(p){var o=pm[p.id];if(!o){ord.push(p.id);pm[p.id]=p}else if((p.u||0)>(o.u||0))pm[p.id]=p})});
+  var profiles=ord.filter(function(id){return !(pdel[id]>=(pm[id].u||0))}).map(function(id){return pm[id]});
+  var states={},all=[],up=0;profiles.forEach(function(p){var st=hzMergeState((A.states||{})[p.id],(B.states||{})[p.id])||hzBlank();states[p.id]=st;all=all.concat(st.portions||[]);up=Math.max(up,st.updatedAt||0)});
+  return {v:3,profiles:profiles,pdel:pdel,states:states,portions:all,updatedAt:up}}
+
+/* ---------- storage: ملفات شخصية + الموبايل + مزامنة العيلة ---------- */
+let lsOK=true, syncTimer=null, syncing=false, syncAgain=false, snap=null, pendingRender=false;
 const SK="hifzi_sync_v1", PK="hifzi_profiles_v1";
-let sync={url:"",key:"",last:0};
-let profiles={list:[{id:"p1",name:"أنا",emoji:"🌸"}],current:"p1",updatedAt:0};
+let sync={url:"",key:"",last:0,lock:""};
+let profiles={list:[{id:"p1",name:"أنا",emoji:"🌸",u:0}],current:"p1",pdel:{}};
 const skey=id=>id==="p1"?LS:"hifzi_state_"+id;
-function blank(){return {v:1,updatedAt:0,settings:{sessionDay:null,nearWeeks:4,farPerDay:1},portions:[],weeks:{}}}
-function readState(id){try{const j=localStorage.getItem(skey(id));if(j){const x=JSON.parse(j);if(x&&x.v)return x}}catch(e){}return blank()}
+const blank=hzBlank, clone=o=>JSON.parse(JSON.stringify(o));
+function readState(id){try{const j=localStorage.getItem(skey(id));if(j){const x=JSON.parse(j);if(x&&x.v){if(!x.del)x.del={};return x}}}catch(e){}return blank()}
 function writeState(id,x){try{localStorage.setItem(skey(id),JSON.stringify(x))}catch(e){lsOK=false}}
 function saveProfiles(){try{localStorage.setItem(PK,JSON.stringify(profiles))}catch(e){}}
 function curProfile(){return profiles.list.find(p=>p.id===profiles.current)||profiles.list[0]}
 function loadLocal(){try{localStorage.setItem("__t","1");localStorage.removeItem("__t");
-  const pj=localStorage.getItem(PK);if(pj){const p=JSON.parse(pj);if(p&&p.list&&p.list.length)profiles=p}
+  const k=localStorage.getItem(SK);if(k)sync=Object.assign(sync,JSON.parse(k));
+  const pj=localStorage.getItem(PK);if(pj){const p=JSON.parse(pj);if(p&&p.list&&p.list.length)profiles=Object.assign({pdel:{}},p)}
+  if(sync.lock&&profiles.list.some(p=>p.id===sync.lock))profiles.current=sync.lock;
   if(!profiles.list.some(p=>p.id===profiles.current))profiles.current=profiles.list[0].id;
-  state=readState(profiles.current);
-  const k=localStorage.getItem(SK);if(k)sync=Object.assign(sync,JSON.parse(k))}catch(e){lsOK=false}}
+  state=readState(profiles.current)}catch(e){lsOK=false}
+  snap=clone(state)}
 function saveSync(){try{localStorage.setItem(SK,JSON.stringify(sync))}catch(e){}}
-function queueDrive(){if(sync.url){clearTimeout(syncTimer);syncTimer=setTimeout(pushDrive,1500);setSync("⏳ بيحفظ على Drive...")} else updSync()}
-function save(){state.updatedAt=Date.now();writeState(profiles.current,state);queueDrive()}
-function profilesChanged(){profiles.updatedAt=Date.now();saveProfiles();queueDrive();updHeader()}
-function switchProfile(id){writeState(profiles.current,state);profiles.current=id;saveProfiles();state=readState(id);weekKey=null;tab="week";animNext=true;updHeader();render()}
-function bundle(){const states={};let all=[],up=profiles.updatedAt||0;
+// بيعلّم أي حاجة اتغيرت بوقت التعديل عشان الدمج يعرف الأحدث
+const strip=o=>{const c=Object.assign({},o);delete c.u;return JSON.stringify(c)};
+function stamp(prev,cur){const now=Date.now();cur.del=cur.del||{};
+  const pp={};(prev.portions||[]).forEach(p=>pp[p.id]=p);
+  cur.portions.forEach(p=>{const o=pp[p.id];if(!o||strip(o)!==strip(p))p.u=now;delete pp[p.id]});
+  Object.keys(pp).forEach(id=>cur.del[id]=now);
+  Object.keys(cur.weeks).forEach(W=>{const pc=((prev.weeks||{})[W]||{}).cells||{};Object.entries(cur.weeks[W].cells).forEach(([k,c])=>{const o=pc[k];if(!o||strip(o)!==strip(c))c.u=now})});
+  Object.keys(prev.weeks||{}).forEach(W=>{Object.keys(prev.weeks[W].cells||{}).forEach(k=>{const w=cur.weeks[W]||(cur.weeks[W]={cells:{}});if(!w.cells[k])w.cells[k]={items:[],note:"",done:false,u:now}})});
+  if(strip(prev.settings||{})!==strip(cur.settings||{}))cur.settings.u=now}
+function queueDrive(){if(sync.url){clearTimeout(syncTimer);syncTimer=setTimeout(syncNow,1200);setSync("⏳ بيحفظ...")} else updSync()}
+function save(){state.updatedAt=Date.now();if(snap)stamp(snap,state);snap=clone(state);writeState(profiles.current,state);queueDrive()}
+function profilesChanged(id){if(id){const p=profiles.list.find(x=>x.id===id);if(p)p.u=Date.now()}saveProfiles();queueDrive();updHeader()}
+function switchProfile(id){writeState(profiles.current,state);profiles.current=id;saveProfiles();state=readState(id);snap=clone(state);weekKey=null;tab="week";animNext=true;updHeader();render()}
+function bundle(){const states={};let all=[],up=0;
   profiles.list.forEach(p=>{const x=p.id===profiles.current?state:readState(p.id);states[p.id]=x;all=all.concat(x.portions||[]);up=Math.max(up,x.updatedAt||0)});
-  return {v:2,profiles:profiles.list,profilesUpdatedAt:profiles.updatedAt||0,states,portions:all,updatedAt:up}}
+  return {v:3,profiles:profiles.list,pdel:profiles.pdel||{},states,portions:all,updatedAt:up}}
+function storeBundle(b){const before=JSON.stringify(state)+JSON.stringify(profiles.list);
+  profiles.list=b.profiles.length?b.profiles:profiles.list;profiles.pdel=b.pdel||{};
+  b.profiles.forEach(p=>writeState(p.id,b.states[p.id]||blank()));
+  if(sync.lock&&profiles.list.some(p=>p.id===sync.lock))profiles.current=sync.lock;
+  if(!profiles.list.some(p=>p.id===profiles.current))profiles.current=profiles.list[0].id;
+  saveProfiles();state=readState(profiles.current);snap=clone(state);
+  return before!==JSON.stringify(state)+JSON.stringify(profiles.list)}
 function applyBundle(b){
-  if(b&&b.profiles&&b.states){profiles.list=b.profiles;profiles.updatedAt=b.profilesUpdatedAt||0;
-    b.profiles.forEach(p=>writeState(p.id,b.states[p.id]||blank()));
-    if(!profiles.list.some(p=>p.id===profiles.current))profiles.current=profiles.list[0].id;
-    saveProfiles();state=readState(profiles.current)}
-  else if(b&&b.v){state=b;writeState(profiles.current,state)}
+  if(b&&b.profiles&&b.states){storeBundle(b);queueDrive()}
+  else if(b&&b.v){state=b;if(!state.del)state.del={};save()}
   weekKey=null;animNext=true;updHeader();updSync();render()}
 function setSync(t){$("#sync").textContent=t}
 function updSync(){
   if(!lsOK) return setSync("⚠️ مش بيحفظ – افتحيه من Chrome");
-  if(sync.url) return setSync(sync.last?"☁️ محفوظ على Drive":"☁️ Drive مستني أول حفظ");
+  if(sync.lock) return setSync(sync.last?"👨‍👩‍👦 متزامن مع العيلة":"👨‍👩‍👦 مستني مزامنة");
+  if(sync.url) return setSync(sync.last?"☁️ متزامن":"☁️ مستني أول مزامنة");
   setSync("📱 على الموبايل بس");
 }
-function updHeader(){const p=curProfile();$("#profBtn").textContent=p.emoji+" "+p.name+" ▾"}
-async function pushDrive(){
-  if(!sync.url)return; if(syncing){syncAgain=true;return}
-  syncing=true;
+function updHeader(){const p=curProfile();$("#profBtn").textContent=p.emoji+" "+p.name+(sync.lock?"":" ▾")}
+async function postSync(url,key,data){
+  const r=await fetch(url,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({key,data})});
+  const j=await r.json();if(!j.ok)throw (j.error||"err");if(!j.data)throw "old";return j.data}
+async function pullCloud(url,key){
+  const r=await fetch(url+(url.includes("?")?"&":"?")+"key="+encodeURIComponent(key));
+  const j=await r.json();if(!j.ok)throw (j.error||"err");return hzToBundle(j.data)}
+const busy=()=>!!$("#modalRoot").innerHTML;
+async function syncNow(){
+  if(!sync.url)return false; if(syncing){syncAgain=true;return false}
+  if(busy()){clearTimeout(syncTimer);syncTimer=setTimeout(syncNow,4000);return false}
+  syncing=true;let ok=false;
   try{
-    const r=await fetch(sync.url,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({key:sync.key,data:bundle()})});
-    const j=await r.json(); if(!j.ok) throw j.error||"err";
-    sync.last=Date.now();saveSync();setSync("☁️ محفوظ على Drive");
-  }catch(e){setSync("⚠️ Drive مش متاح – محفوظ على الموبايل")}
-  syncing=false; if(syncAgain){syncAgain=false;pushDrive()}
-}
-async function pullDrive(){
-  const r=await fetch(sync.url+(sync.url.includes("?")?"&":"?")+"key="+encodeURIComponent(sync.key));
-  const j=await r.json(); if(!j.ok) throw j.error||"err"; return j.data;
-}
-async function initDrive(){
-  if(!sync.url)return;
-  try{const cloud=await pullDrive(), L=bundle();
-    if(cloudBetter(cloud)){applyBundle(cloud);toast("اتحمّلت آخر نسخة من Drive ☁️")}
-    else if(L.updatedAt>((cloud&&cloud.updatedAt)||0)) pushDrive();
-    sync.last=sync.last||Date.now();saveSync();setSync("☁️ محفوظ على Drive");
-  }catch(e){setSync("⚠️ Drive مش متاح – محفوظ على الموبايل")}
-}
-function cloudBetter(c){const L=bundle();return !!(c&&c.v&&c.portions&&c.portions.length&&((c.updatedAt||0)>L.updatedAt||L.portions.length<c.portions.length))}
+    const server=await postSync(sync.url,sync.key,bundle());
+    if(busy()){syncAgain=true}else{
+      const changed=storeBundle(hzMergeBundle(bundle(),server));
+      sync.last=Date.now();saveSync();updSync();updHeader();ok=true;
+      if(changed)render();
+    }
+  }catch(e){setSync(e==="key"?"⚠️ كلمة السر غلط":e==="old"?"⚠️ لازم تحدّث سكريبت Drive":"⚠️ مفيش نت – محفوظ على الموبايل")}
+  syncing=false;if(syncAgain){syncAgain=false;clearTimeout(syncTimer);syncTimer=setTimeout(syncNow,1500)}
+  return ok}
 function downloadBackup(){
   state.settings.lastBackup=today();save();
   const blob=new Blob([JSON.stringify(bundle())],{type:"application/json"});
   const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="hifzi_backup_"+today()+".json";
   document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+}
+const relTime=t=>{if(!t||t<1e12)return "—";const m=Math.round((Date.now()-t)/60000);if(m<1)return "دلوقتي";if(m<60)return "من "+ar(m)+" دقيقة";const h=Math.round(m/60);if(h<24)return "من "+ar(h)+" ساعة";return "من "+ar(Math.round(h/24))+" يوم"};
+
+/* ---------- ربط موبايل تاني ---------- */
+const encJoin=()=>btoa(unescape(encodeURIComponent(JSON.stringify({u:sync.url,k:sync.key}))));
+function decJoin(code){try{code=String(code).trim();const m=code.match(/join=([^&\s]+)/);if(m)code=decodeURIComponent(m[1]);const o=JSON.parse(decodeURIComponent(escape(atob(code))));if(o.u&&o.k)return o}catch(e){}return null}
+const joinLink=()=>location.origin+location.pathname+"?join="+encodeURIComponent(encJoin());
+function joinModal(code){const j=decJoin(code);if(!j){toast("رابط/كود الربط مش صحيح");return}
+  if(sync.url===j.u&&!sync.lock){toast("الموبايل ده هو الأساسي ومربوط بالفعل");return}
+  const n=state.portions.length;
+  openModal(`<h2>👨‍👩‍👦 ربط بحساب العيلة</h2><div class="hint">الموبايل ده هيتزامن مع موبايل العيلة الأساسي، وهيظهر عليه ملف شخص واحد بس. أي تعديل هنا أو هناك هيوصل للتاني.</div>
+    <div class="rate3">
+      <button id="jNew" style="background:var(--pink)">${curProfile().emoji} ضيف ملفي «${esc(curProfile().name)}» للعيلة${n?" ومعاه "+ar(n)+" مقطع محفوظ":""}</button>
+      <button id="jOld" style="background:var(--lav)">👤 ملفي متسجل بالفعل على موبايل العيلة</button>
+      <button class="btn ghost" id="jCl">إلغاء</button></div>`);
+  $("#jCl").onclick=closeModal;
+  $("#jNew").onclick=async()=>{closeModal();toast("⏳ بيربط...");
+    const cur=curProfile(),nid="p"+uid(),st=readState(cur.id);writeState(nid,st);
+    const np={id:nid,name:cur.name,emoji:cur.emoji,u:Date.now()};profiles={list:[np],current:nid,pdel:{}};saveProfiles();
+    state=readState(nid);snap=clone(state);
+    Object.assign(sync,{url:j.u,key:j.k,lock:nid,last:0});saveSync();updHeader();
+    const ok=await syncNow();toast(ok?"✅ اتربط بالعيلة":"اتحفظ الربط – هيتزامن أول ما النت يرجع");animNext=true;render()};
+  $("#jOld").onclick=async()=>{toast("⏳ بيجيب ملفات العيلة...");let cloud;
+    try{cloud=await pullCloud(j.u,j.k)}catch(e){toast(e==="key"?"❌ الكود غلط":"❌ مفيش اتصال");return}
+    if(!cloud||!cloud.profiles.length){toast("مفيش ملفات على حساب العيلة لسه");return}
+    openModal(`<h2>انت مين؟</h2><div class="hint">⚠️ البيانات اللي على الموبايل ده هتتشال، ويظهر مكانها الملف اللي هتختاره.</div>
+      <div style="margin-top:10px">${cloud.profiles.map(p=>`<div class="pitem" data-id="${p.id}"><span class="em">${p.emoji}</span><span class="nm">${esc(p.name)}</span></div>`).join("")}</div>
+      <div class="actions"><button class="btn ghost" id="jCl2">إلغاء</button></div>`);
+    $("#jCl2").onclick=closeModal;
+    document.querySelectorAll(".pitem").forEach(el=>el.onclick=()=>{closeModal();Object.assign(sync,{url:j.u,key:j.k,lock:el.dataset.id,last:Date.now()});saveSync();
+      storeBundle(cloud);weekKey=null;animNext=true;updHeader();updSync();render();toast("أهلاً "+curProfile().name+" "+curProfile().emoji);syncNow()})};
 }
 
 /* ---------- الثيمات والحركة ---------- */
@@ -516,17 +585,27 @@ function renderSettings(){
     <input class="inp" type="number" min="1" max="5" id="fp" value="${s.farPerDay}">
     <div style="margin-top:14px"><button class="btn full" id="sv">حفظ الإعدادات</button></div>
   </div>
-  <div class="card"><h3 style="margin-top:0">☁️ الحفظ التلقائي على Google Drive</h3>
-    <div class="hint">${sync.url?("✅ متوصل"+(sync.last?" – آخر حفظ: "+new Date(sync.last).toLocaleString("ar-EG",{day:"numeric",month:"long",hour:"numeric",minute:"2-digit"}):"")):"مش متوصل لسه. بعد التوصيل كل تعديل بيتحفظ لوحده على Drive، ولو الموبايل اتمسح أو اتغير البيانات بترجع."}</div>
+  ${sync.lock?`<div class="card"><h3 style="margin-top:0">👨‍👩‍👦 حساب العيلة</h3>
+    <div class="hint">الموبايل ده مربوط بحساب العيلة كـ <b>${esc(curProfile().name)} ${curProfile().emoji}</b>. أي تعديل بيوصل لموبايل العيلة الأساسي. آخر مزامنة: ${relTime(sync.last)}</div>
+    <div class="row" style="margin-top:10px"><button class="btn mint sm" id="sNow">🔄 مزامنة دلوقتي</button><button class="btn ghost sm" id="sUnlink">فك الربط</button></div></div>`
+  :sync.url?`<div class="card"><h3 style="margin-top:0">☁️ الحفظ على Google Drive</h3>
+    <div class="hint">✅ متوصل – آخر مزامنة: ${relTime(sync.last)}</div>
+    <div class="row" style="margin-top:10px"><button class="btn mint sm" id="sNow">🔄 مزامنة دلوقتي</button><button class="btn ghost sm" id="soff">فصل</button></div></div>
+  <div class="card"><h3 style="margin-top:0">👨‍👩‍👦 ربط موبايل تاني (العيلة)</h3>
+    <div class="hint">ابعتي الرابط ده لابنك/بنتك. لما يفتحه بـ Chrome على موبايله، ملفه هيظهر هنا عندك، وأي تعديل منه أو منك هيوصل للتاني.</div>
+    <div class="row" style="margin-top:10px"><a class="btn mint sm" id="wa" style="text-decoration:none" href="https://wa.me/?text=${encodeURIComponent("افتح الرابط ده بـ Chrome عشان تربط تطبيق حِفظي بتاعك بحساب العيلة 🌸\n"+joinLink())}" target="_blank" rel="noopener">📤 ابعتي على واتساب</a><button class="btn lav sm" id="cpj">نسخ الرابط</button></div>
+    <input class="inp" id="jl" readonly dir="ltr" style="margin-top:8px;font-size:11px" value="${esc(joinLink())}"></div>`
+  :`<div class="card"><h3 style="margin-top:0">☁️ الحفظ على Google Drive</h3>
+    <div class="hint">للموبايل الأساسي: بعد التوصيل كل تعديل بيتحفظ لوحده على Drive، ولو الموبايل اتمسح أو اتغير البيانات بترجع.</div>
     <label class="f">رابط المزامنة (Web app URL)</label>
-    <input class="inp" id="surl" dir="ltr" placeholder="https://script.google.com/macros/s/.../exec" value="${esc(sync.url)}">
+    <input class="inp" id="surl" dir="ltr" placeholder="https://script.google.com/macros/s/.../exec">
     <label class="f">كلمة السر</label>
-    <input class="inp" id="skey" dir="ltr" value="${esc(sync.key)}">
-    <div class="row" style="margin-top:10px">
-      <button class="btn mint sm" id="sconn">توصيل واختبار</button>
-      ${sync.url?'<button class="btn lav sm" id="spull">استرجاع من Drive</button><button class="btn ghost sm" id="soff">فصل</button>':""}
-    </div>
-  </div>
+    <input class="inp" id="skey" dir="ltr">
+    <div class="row" style="margin-top:10px"><button class="btn mint sm" id="sconn">توصيل واختبار</button></div></div>
+  <div class="card"><h3 style="margin-top:0">👨‍👩‍👦 عندك رابط ربط من موبايل العيلة؟</h3>
+    <div class="hint">الصق الرابط اللي اتبعتلك هنا</div>
+    <input class="inp" id="jin" dir="ltr" style="margin-top:8px;font-size:12px" placeholder="https://...?join=...">
+    <div class="row" style="margin-top:8px"><button class="btn lav sm" id="jgo">ربط</button></div></div>`}
   <div class="card"><h3 style="margin-top:0">💾 نسخة احتياطية</h3>
     <div class="hint">البيانات محفوظة على الموبايل ده بس. اعملي نسخة احتياطية كل فترة (مثلاً كل أسبوع) وابعتيها لنفسك على واتساب.${s.lastBackup?" آخر نسخة: "+nice(s.lastBackup):""}</div>
     <div class="row" style="margin-top:10px"><button class="btn lav" style="flex:1" id="dl">⬇️ تنزيل نسخة احتياطية</button></div>
@@ -538,7 +617,7 @@ function renderSettings(){
     <textarea class="inp" id="im" rows="3" placeholder="الصقي الكود هنا" dir="ltr" style="font-size:11px;margin-top:8px"></textarea>
     <div class="row" style="margin-top:8px"><button class="btn ghost sm" id="imb">استرجاع</button></div></details>
   </div>
-  <div class="card"><div class="hint">🌸 حِفظي v8 – بيشتغل من غير نت. الحفظ على Drive اختياري وبيبقى على حساب Google بتاعك أنتِ.</div></div>`;
+  <div class="card"><div class="hint">🌸 حِفظي ${"v"+APP_VERSION} – بيشتغل من غير نت. الحفظ على Drive اختياري وبيبقى على حساب Google بتاعك أنتِ.</div></div>`;
   $("#bk").value=JSON.stringify(bundle());
   bindThemePicker($("#view"),k=>{state.settings.theme=k;save();applyTheme();confetti(innerWidth/2,innerHeight*0.3,16)});
   $("#mot").onchange=e=>{state.settings.motion=e.target.checked;save();applyTheme();if(e.target.checked)confetti(innerWidth/2,innerHeight*0.3,16)};
@@ -546,18 +625,18 @@ function renderSettings(){
   $("#cp").onclick=async()=>{try{await navigator.clipboard.writeText($("#bk").value);toast("اتنسخ ✓")}catch(e){$("#bk").select();toast("حدد النص وانسخه يدوي")}};
   const restore=txt=>{try{const s2=JSON.parse(txt);if(!(s2.portions&&(s2.settings||s2.profiles)))throw 0;confirmModal(s2.profiles?"الاسترجاع هيستبدل كل البيانات وكل الأشخاص. تكملي؟":"هيسترجع النسخة دي في ملف «"+curProfile().name+"». تكملي؟",()=>{applyBundle(s2);save();toast("اترجعت البيانات ✓")})}catch(e){toast("الملف/الكود مش صحيح")}};
   $("#imb").onclick=()=>restore($("#im").value);
-  $("#sconn").onclick=async()=>{const url=$("#surl").value.trim(),key=$("#skey").value.trim();
+  $("#sconn")&&($("#sconn").onclick=async()=>{const url=$("#surl").value.trim(),key=$("#skey").value.trim();
     if(!/^https:\/\/script\.google\.com\/.+\/exec/.test(url)){toast("الرابط لازم يبدأ بـ script.google.com وينتهي بـ exec");return}
     if(!key){toast("اكتبي كلمة السر");return}
-    const old={...sync};sync.url=url;sync.key=key;toast("⏳ بيجرّب...");
-    try{const cloud=await pullDrive();saveSync();
-      if(cloudBetter(cloud)){confirmModal("لقيت بياناتك على Drive. أحمّلها على الموبايل؟",()=>{applyBundle(cloud);toast("اتحمّلت ✓")})}
-      else{await pushDrive();toast("✅ اتوصل واتحفظ على Drive")}
-      sync.last=sync.last||Date.now();saveSync();updSync();render();
-    }catch(e){sync=old;toast("❌ مش قادر يوصل – راجعي الرابط وكلمة السر")}};
-  $("#spull")&&($("#spull").onclick=async()=>{try{const cloud=await pullDrive();if(!cloud||!cloud.v){toast("مفيش بيانات على Drive");return}
-    confirmModal("هيستبدل بيانات الموبايل بالنسخة اللي على Drive. تكملي؟",()=>{applyBundle(cloud);toast("اترجعت من Drive ✓")})}catch(e){toast("❌ Drive مش متاح")}});
-  $("#soff")&&($("#soff").onclick=()=>confirmModal("تفصلي الحفظ على Drive؟ (البيانات اللي هناك مش هتتمسح)",()=>{sync={url:"",key:"",last:0};saveSync();updSync();render()}));
+    toast("⏳ بيجرّب...");
+    try{const server=await postSync(url,key,bundle());Object.assign(sync,{url,key,lock:"",last:Date.now()});saveSync();
+      storeBundle(hzMergeBundle(bundle(),server));weekKey=null;animNext=true;updHeader();updSync();render();toast("✅ اتوصل واتزامن");confetti(innerWidth/2,innerHeight*0.3,16)}
+    catch(e){toast(e==="key"?"❌ كلمة السر غلط":e==="old"?"❌ السكريبت قديم – حدّثه بالنسخة الجديدة":"❌ مش قادر يوصل – راجعي الرابط")}});
+  $("#sNow")&&($("#sNow").onclick=async()=>{toast("⏳ بيزامن...");const ok=await syncNow();toast(ok?"✅ اتزامن":"❌ مش قادر يوصل");render()});
+  $("#soff")&&($("#soff").onclick=()=>confirmModal("تفصلي الحفظ على Drive؟ (البيانات اللي هناك مش هتتمسح)",()=>{sync={url:"",key:"",last:0,lock:""};saveSync();updSync();updHeader();render()}));
+  $("#sUnlink")&&($("#sUnlink").onclick=()=>confirmModal("تفك ربط الموبايل ده بحساب العيلة؟ البيانات هتفضل على الموبايل بس ومش هتتزامن.",()=>{sync={url:"",key:"",last:0,lock:""};saveSync();updSync();updHeader();render()}));
+  $("#cpj")&&($("#cpj").onclick=async()=>{try{await navigator.clipboard.writeText(joinLink());toast("اتنسخ ✓")}catch(e){$("#jl").select();toast("حدد الرابط وانسخه")}});
+  $("#jgo")&&($("#jgo").onclick=()=>joinModal($("#jin").value));
   $("#dl").onclick=()=>{try{downloadBackup();toast("اتنزلت النسخة ✓")}catch(e){toast("استخدمي النسخ واللصق")}};
   $("#fileIn").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>restore(r.result);r.readAsText(f)};
 }
@@ -712,17 +791,19 @@ function surahModal(s_){
 /* ---------- الأشخاص ---------- */
 const EMOJIS=["🌸","🌷","🌙","⭐","🦋","🍃","📘","🧸","🌼","🐣"];
 function profileModal(){
-  openModal(`<h2>مين بيستخدم التطبيق؟</h2><div class="hint">كل شخص له حفظه وجدوله لوحده.</div>
-    <div style="margin-top:10px">${profiles.list.map(p=>`<div class="pitem ${p.id===profiles.current?"on":""}" data-id="${p.id}"><span class="em">${p.emoji}</span><span class="nm">${esc(p.name)}</span>
-      <button class="ico" data-ed="${p.id}">✏️</button>${profiles.list.length>1?`<button class="ico" data-del="${p.id}">🗑️</button>`:""}</div>`).join("")}</div>
-    <div class="actions"><button class="btn" id="pAdd">+ إضافة شخص</button><button class="btn ghost" id="pCl">إغلاق</button></div>`);
-  $("#pCl").onclick=closeModal;$("#pAdd").onclick=()=>profileEdit(null);
+  const L=sync.lock?profiles.list.filter(p=>p.id===sync.lock):profiles.list;
+  openModal(`<h2>${sync.lock?"ملفي":"مين بيستخدم التطبيق؟"}</h2><div class="hint">${sync.lock?"الموبايل ده مربوط بحساب العيلة":"كل شخص له حفظه وجدوله لوحده."}${sync.url?" • آخر مزامنة: "+relTime(sync.last):""}</div>
+    <div style="margin-top:10px">${L.map(p=>{const st=p.id===profiles.current?state:readState(p.id);return `<div class="pitem ${p.id===profiles.current?"on":""}" data-id="${p.id}"><span class="em">${p.emoji}</span><span class="nm">${esc(p.name)}<br><span style="font-size:11px;color:var(--muted);font-weight:500">آخر نشاط: ${relTime(st.updatedAt)} • ${ar(st.portions.length)} مقطع</span></span>
+      <button class="ico" data-ed="${p.id}">✏️</button>${!sync.lock&&profiles.list.length>1?`<button class="ico" data-del="${p.id}">🗑️</button>`:""}</div>`}).join("")}</div>
+    <div class="actions">${sync.lock?"":'<button class="btn" id="pAdd">+ إضافة شخص</button>'}${sync.url?'<button class="btn mint" id="pSync">🔄 مزامنة</button>':""}<button class="btn ghost" id="pCl">إغلاق</button></div>`);
+  $("#pCl").onclick=closeModal;$("#pAdd")&&($("#pAdd").onclick=()=>profileEdit(null));
+  $("#pSync")&&($("#pSync").onclick=async()=>{closeModal();toast("⏳ بيزامن...");const ok=await syncNow();toast(ok?"✅ اتزامن":"❌ مش قادر يوصل");if(ok)profileModal()});
   document.querySelectorAll(".pitem").forEach(el=>el.onclick=()=>{closeModal();if(el.dataset.id!==profiles.current){switchProfile(el.dataset.id);toast("أهلاً "+curProfile().name+" "+curProfile().emoji)}});
   document.querySelectorAll("[data-ed]").forEach(b=>b.onclick=e=>{e.stopPropagation();profileEdit(profiles.list.find(p=>p.id===b.dataset.ed))});
   document.querySelectorAll("[data-del]").forEach(b=>b.onclick=e=>{e.stopPropagation();const p=profiles.list.find(x=>x.id===b.dataset.del);
     confirmModal(`تمسحي «${p.name}» وكل حفظه؟ الخطوة دي مش بترجع.`,()=>{
-      profiles.list=profiles.list.filter(x=>x.id!==p.id);try{localStorage.removeItem(skey(p.id))}catch(e){}
-      if(profiles.current===p.id){profiles.current=profiles.list[0].id;state=readState(profiles.current);weekKey=null}
+      profiles.list=profiles.list.filter(x=>x.id!==p.id);(profiles.pdel||(profiles.pdel={}))[p.id]=Date.now();try{localStorage.removeItem(skey(p.id))}catch(e){}
+      if(profiles.current===p.id){profiles.current=profiles.list[0].id;state=readState(profiles.current);snap=clone(state);weekKey=null}
       profilesChanged();render();toast("اتمسح")})});
 }
 function themePicker(cur){return `<div class="themes">${Object.entries(THEMES).map(([k,t])=>`<div class="th ${k===cur?"on":""}" data-th="${k}" style="background:${t.bg};color:${k==="night"?"#ece8f6":"#55495f"}">
@@ -738,10 +819,10 @@ function profileEdit(p){
   document.querySelectorAll("[data-em]").forEach(b=>b.onclick=()=>{em=b.dataset.em;document.querySelectorAll("[data-em]").forEach(x=>x.classList.toggle("on",x===b))});
   $("#pBack").onclick=profileModal;bindThemePicker($("#modalRoot"),k=>{th=k});
   $("#pOk").onclick=()=>{const nm=$("#pnm").value.trim();if(!nm){toast("اكتبي الاسم");return}
-    if(isNew){const id="p"+uid();profiles.list.push({id,name:nm,emoji:em});const st=blank();st.settings.theme=th;writeState(id,st);profilesChanged();closeModal();switchProfile(id);confetti(innerWidth/2,innerHeight*0.35,24,true);toast("أهلاً "+nm+" "+em)}
+    if(isNew){const id="p"+uid();profiles.list.push({id,name:nm,emoji:em,u:Date.now()});const st=blank();st.settings.theme=th;writeState(id,st);profilesChanged();closeModal();switchProfile(id);confetti(innerWidth/2,innerHeight*0.35,24,true);toast("أهلاً "+nm+" "+em)}
     else{p.name=nm;p.emoji=em;
-      if(p.id===profiles.current){state.settings.theme=th;save();animNext=true;render()}else{const st=readState(p.id);st.settings.theme=th;st.updatedAt=Date.now();writeState(p.id,st);queueDrive()}
-      profilesChanged();profileModal()}};
+      if(p.id===profiles.current){state.settings.theme=th;save();animNext=true;render()}else{const st=readState(p.id);if(st.settings.theme!==th){st.settings.theme=th;st.settings.u=st.updatedAt=Date.now();writeState(p.id,st)}}
+      profilesChanged(p.id);profileModal()}};
 }
 
 /* ---------- boot ---------- */
@@ -752,7 +833,17 @@ window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredIns
 window.addEventListener("appinstalled",()=>{$("#installBar").classList.add("hidden");toast("اتثبت التطبيق 🌸")});
 $("#installBtn").onclick=async()=>{if(!deferredInstall)return;deferredInstall.prompt();await deferredInstall.userChoice;deferredInstall=null;$("#installBar").classList.add("hidden")};
 if("serviceWorker" in navigator&&(location.protocol==="https:"||location.hostname==="localhost")){navigator.serviceWorker.register("sw.js").catch(()=>{})}
- loadLocal(); updHeader(); updSync(); render(); initDrive();
+ loadLocal(); updHeader(); updSync(); render(); syncNow();
+setInterval(()=>{if(document.visibilityState==="visible")syncNow()},45000);
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"){syncNow();checkUpdate()}});
+async function checkUpdate(){try{const r=await fetch("version.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)return;const j=await r.json();
+  if(+j.version>+APP_VERSION){$("#updV").textContent="(v"+j.version+")";$("#updN").textContent=j.notes||"";$("#updBar").classList.remove("hidden")}}catch(e){}}
+$("#updBtn").onclick=async()=>{toast("⏳ بيحدّث...");
+  try{const reg=await navigator.serviceWorker.getRegistration();if(reg)await reg.update()}catch(e){}
+  try{const ks=await caches.keys();await Promise.all(ks.map(k=>caches.delete(k)))}catch(e){}
+  location.reload()};
+checkUpdate();setInterval(checkUpdate,30*60000);
+(function(){const q=new URLSearchParams(location.search).get("join");if(q){history.replaceState(null,"",location.pathname);setTimeout(()=>joinModal(q),400)}})();
 $("#profBtn").onclick=profileModal;
 </script>
 </body>

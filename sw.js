@@ -1,5 +1,5 @@
 // حِفظي – بيخلي التطبيق يشتغل من غير نت
-const CACHE = 'hifzi-v8';
+const CACHE = 'hifzi-v10';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './icon-maskable-512.png', './apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
@@ -13,6 +13,8 @@ self.addEventListener('fetch', e => {
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
   // الحفظ على Drive يروح للنت على طول
+  // ملف رقم الإصدار يتجاب من النت دايماً
+  if (url.origin === location.origin && url.pathname.endsWith('version.json')) return;
   if (url.hostname.endsWith('google.com') || url.hostname.endsWith('googleusercontent.com')) return;
   const isFont = url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com';
   if (url.origin !== location.origin && !isFont) return;
